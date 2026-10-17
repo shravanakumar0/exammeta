@@ -1,0 +1,969 @@
+/* ==========================================
+   PDF VIEWER - MODERN FUTURISTIC DESIGN
+========================================== */
+
+:root {
+    --pdf-primary: #667eea;
+    --pdf-secondary: #764ba2;
+    --pdf-accent: #f093fb;
+    --pdf-dark: #0f0f23;
+    --pdf-glass: rgba(255, 255, 255, 0.08);
+    --pdf-border: rgba(255, 255, 255, 0.12);
+}
+
+/* ==========================================
+   ROOT CONTAINER
+========================================== */
+.pdf-modern-root {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+    color: #fff;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.pdf-modern-root.is-dark {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+}
+
+.pdf-modern-root.is-light {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #212529;
+}
+
+.pdf-modern-root.is-cinema {
+    background: #000;
+}
+
+/* ==========================================
+   BACKGROUND EFFECTS
+========================================== */
+.pdf-background-shapes {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.pdf-background-shapes .shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    animation: float 20s ease-in-out infinite;
+}
+
+.pdf-background-shapes .s1 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--pdf-primary), transparent);
+    top: -100px;
+    left: -100px;
+    animation-delay: 0s;
+}
+
+.pdf-background-shapes .s2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--pdf-accent), transparent);
+    bottom: -150px;
+    right: -150px;
+    animation-delay: 5s;
+}
+
+.geo-shape {
+    position: absolute;
+    opacity: 0.05;
+    animation: rotate3d 30s linear infinite;
+}
+
+.geo-shape.hexagon {
+    width: 60px;
+    height: 60px;
+    background: var(--pdf-primary);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.geo-shape.triangle {
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-bottom: 70px solid var(--pdf-accent);
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -30px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+}
+
+@keyframes rotate3d {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================
+   PROGRESS BAR
+========================================== */
+.ultimate-progress-line {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--pdf-primary), var(--pdf-accent));
+    z-index: 10000;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px var(--pdf-primary);
+}
+
+/* ==========================================
+   TOAST NOTIFICATIONS
+========================================== */
+.portal-toast {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--pdf-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--pdf-border);
+    padding: 14px 24px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 9999;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.portal-toast.success {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.15);
+}
+
+.portal-toast.info {
+    border-color: var(--pdf-primary);
+}
+
+.portal-toast button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 0;
+    display: flex;
+}
+
+/* ==========================================
+   NAVIGATION HEADER
+========================================== */
+.pdf-nav-glass {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(15, 15, 35, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--pdf-border);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.pdf-nav-glass.nav-scrolled {
+    background: rgba(15, 15, 35, 0.95);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.pdf-nav-glass.nav-hidden {
+    transform: translateY(-100%);
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.glass-back-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--pdf-glass);
+    border: 1px solid var(--pdf-border);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 18px;
+}
+
+.glass-back-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(-4px);
+}
+
+.doc-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.doc-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--pdf-primary), var(--pdf-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.doc-info-text h1.doc-name-vibe {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.doc-info-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.info-badge-modern {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.speed-icon {
+    color: #fbbf24;
+}
+
+.dot-sep {
+    opacity: 0.5;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.glass-action-island {
+    background: var(--pdf-glass);
+    border: 1px solid var(--pdf-border);
+    border-radius: 50px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(12px);
+}
+
+.island-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.island-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.island-btn.active {
+    background: var(--pdf-primary);
+    color: #fff;
+}
+
+.island-zoom {
+    padding: 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.island-sep {
+    width: 1px;
+    height: 24px;
+    background: var(--pdf-border);
+}
+
+.island-btn-premium {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--pdf-primary), var(--pdf-secondary));
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.island-btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ==========================================
+   MAIN STAGE
+========================================== */
+.pdf-stage {
+    position: relative;
+    z-index: 1;
+    padding: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.pdf-top-ad {
+    transition: opacity 0.3s ease;
+}
+
+.pdf-top-ad.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.viewer-core-wrapper {
+    position: relative;
+}
+
+/* ==========================================
+   LOADER
+========================================== */
+.loader-portal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+}
+
+.spinner-futuristic {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 24px;
+}
+
+.spinner-ring {
+    position: absolute;
+    inset: 0;
+    border: 3px solid transparent;
+    border-top-color: var(--pdf-primary);
+    border-right-color: var(--pdf-accent);
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+}
+
+.spinner-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    color: var(--pdf-primary);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+}
+
+/* ==========================================
+   ERROR STATE
+========================================== */
+.error-portal {
+    display: flex;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+.error-card-vibe {
+    max-width: 500px;
+    text-align: center;
+    padding: 40px;
+    background: var(--pdf-glass);
+    border: 1px solid var(--pdf-border);
+    border-radius: 24px;
+    backdrop-filter: blur(12px);
+}
+
+.error-icon-vibe {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.error-card-vibe h2 {
+    margin: 0 0 12px;
+    font-size: 24px;
+}
+
+.error-card-vibe p {
+    color: #94a3b8;
+    margin-bottom: 28px;
+}
+
+.error-btn-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-retry-modern,
+.btn-download-modern {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-retry-modern {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--pdf-border);
+    color: #fff;
+}
+
+.btn-download-modern {
+    background: linear-gradient(135deg, var(--pdf-primary), var(--pdf-secondary));
+    border: none;
+    color: #fff;
+}
+
+.btn-retry-modern:hover,
+.btn-download-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================
+   IFRAME CONTAINER
+========================================== */
+.iframe-container-vibe {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.ambient-glow-aura {
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(circle at center, rgba(102, 126, 234, 0.2), transparent 70%);
+    filter: blur(40px);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.iframe-actual {
+    width: 100%;
+    height: 80vh;
+    border: none;
+    border-radius: 16px;
+    display: block;
+}
+
+/* ==========================================
+   FLOATING ACTIONS
+========================================== */
+.pdf-floating-actions {
+    position: fixed;
+    right: 24px;
+    bottom: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 90;
+    transition: opacity 0.3s ease;
+}
+
+.pdf-floating-actions.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fab-item {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--pdf-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--pdf-border);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.fab-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* ==========================================
+   MISSION CONTROL SIDEBAR
+========================================== */
+.sidebar-overlay-dim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+}
+
+.mission-control-sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 400px;
+    max-width: 90vw;
+    background: linear-gradient(135deg, rgba(15, 15, 35, 0.98), rgba(26, 26, 46, 0.98));
+    backdrop-filter: blur(12px);
+    border-left: 1px solid var(--pdf-border);
+    z-index: 201;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid var(--pdf-border);
+}
+
+.sidebar-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 20px;
+    margin: 0;
+}
+
+.mission-tab-group {
+    display: flex;
+    padding: 16px;
+    gap: 8px;
+    border-bottom: 1px solid var(--pdf-border);
+}
+
+.mission-tab {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.mission-tab.active {
+    background: var(--pdf-glass);
+    border-color: var(--pdf-border);
+    color: #fff;
+}
+
+.mission-content-vibe {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.stats-grid-mission {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-item-mission {
+    padding: 16px;
+    background: var(--pdf-glass);
+    border: 1px solid var(--pdf-border);
+    border-radius: 12px;
+}
+
+.stat-item-mission span {
+    display: block;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 6px;
+}
+
+.stat-item-mission h4 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.insight-card-vibe {
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(240, 147, 251, 0.15));
+    border: 1px solid var(--pdf-border);
+    border-radius: 16px;
+    margin-top: 16px;
+}
+
+.insight-card-vibe h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    font-size: 16px;
+}
+
+.insight-card-vibe p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #cbd5e1;
+}
+
+.history-scroll-v2 {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hist-item-modern {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: var(--pdf-glass);
+    border: 1px solid var(--pdf-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hist-item-modern:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(-4px);
+}
+
+.hist-icon-v2 {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--pdf-primary), var(--pdf-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.hist-text-v2 h4 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.hist-text-v2 span {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.share-mission-panel {
+    text-align: center;
+}
+
+.qr-wrapper-v2 {
+    display: flex;
+    justify-content: center;
+}
+
+.btn-copy-link {
+    background: linear-gradient(135deg, var(--pdf-primary), var(--pdf-secondary));
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-copy-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ==========================================
+   EXIT CINEMA BUTTON
+========================================== */
+.exit-cinema-fab {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--pdf-border);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.exit-cinema-fab:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* ==========================================
+   MOBILE DOCK
+========================================== */
+.pdf-mobile-dock {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 88%;
+    max-width: 380px;
+    background: rgba(15, 15, 35, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
+    padding: 10px 24px;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pdf-mobile-dock.is-hidden {
+    transform: translate(-50%, 150%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.dock-item span {
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.dock-item.active,
+.dock-item:hover {
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.dock-item-prime {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: linear-gradient(135deg, var(--pdf-primary), var(--pdf-secondary));
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    margin-top: -20px;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 4px solid #0f0f23;
+    /* Cutout effect */
+}
+
+.dock-item-prime:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
+}
+
+.dock-item-prime span {
+    font-size: 10px;
+    font-weight: 700;
+}
+
+/* ==========================================
+   FOOTER AD SECTION
+========================================== */
+.pdf-footer-ad-section {
+    padding: 40px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    transition: opacity 0.3s ease;
+}
+
+.pdf-footer-ad-section.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+========================================== */
+@media (max-width: 1024px) {
+    .pdf-stage {
+        padding: 16px;
+    }
+
+    .mission-control-sidebar {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .pdf-nav-glass {
+        padding: 12px 16px;
+    }
+
+    .doc-info-text h1.doc-name-vibe {
+        font-size: 14px;
+    }
+
+    .glass-action-island {
+        padding: 6px 8px;
+        gap: 4px;
+    }
+
+    .island-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+    }
+
+    .island-btn-premium span {
+        display: none;
+    }
+
+    .island-zoom {
+        display: none;
+    }
+
+    .pdf-mobile-dock {
+        display: flex;
+    }
+
+    .pdf-floating-actions {
+        display: none;
+    }
+
+    .iframe-actual {
+        height: 70vh;
+    }
+
+    .mission-control-sidebar {
+        width: 100vw;
+    }
+
+    .mobile-hide-badges {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .glass-action-island {
+        flex-wrap: wrap;
+    }
+
+    .doc-icon-box {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .island-sep {
+        display: none;
+    }
+}

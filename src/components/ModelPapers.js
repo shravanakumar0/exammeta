@@ -1,0 +1,1795 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  HiMagnifyingGlass,
+  HiAcademicCap,
+  HiCalendar,
+  HiFire,
+  HiStar,
+  HiDocumentText,
+  HiArrowDownTray,
+  HiEye,
+  HiChevronRight,
+  HiXMark,
+  HiBookmark,
+  HiOutlineBookmark,
+  HiAdjustmentsHorizontal,
+  HiInbox,
+  HiShare,
+  HiClipboard,
+  HiCheck,
+  HiArrowUp
+} from 'react-icons/hi2';
+import { FaFilePdf, FaBolt, FaLayerGroup } from 'react-icons/fa6';
+import AdSenseAd from './AdSenseAd';
+import InterstitialAdModal from './InterstitialAdModal';
+import CommentSection from './CommentSection';
+import { QRCodeSVG } from 'qrcode.react';
+import './ModelPapersModern.css'; // CHANGED: Modern Dark Theme
+import './ModelPapersAdvanced.css'; // NEW: Advanced Features
+import './ModelPapersHub.css'; // NEW: Hub Interface
+import './ModelPapersHubAdvanced.css'; // NEW: Enhanced Preview System
+import './ModelPapersExperience.css';
+
+const papers = [
+  {
+    "id": 1,
+    "title": "Mathematics For CSE",
+    "code": "BMATS101",
+    "category": "programming",
+    "semester": "1",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1lykWhoLSLbdD66PywFOvqKadpjZnPO41/preview",
+    "solutionLink": "https://drive.google.com/file/d/1yI2Fs_AqYSwB55JyYhz8lSvghi1jmKUy/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1dytNuksweWVZ4o0uedFM8wrI0fnxYmBc/preview",
+    "popularity": "very-high"
+  },
+  {
+    "id": 2,
+    "title": "Applied Physics For CSE",
+    "code": "BPHYS102/202",
+    "category": "programming",
+    "semester": "1",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1EPo4fKtVC-pRv-31K1ngNobA9hJn4kDo/preview",
+    "solutionLink": "https://drive.google.com/file/d/1Eq3hyKXbgBeVgPw_rgG5xFsU3pIl9VCA/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1Cj3-3mlvepcXP5lVMqbjlydqMzOYCRgN/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 3,
+    "title": "Principle of Programming Using C",
+    "code": "BPOP103/203",
+    "category": "programming",
+    "semester": "1",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1Lyy-k8PAf6fpSkYI3hWjmEwiGHAJyGbj/preview",
+    "solutionLink": "https://drive.google.com/file/d/1Gx8ywx2qLVmGyxMlZQSV8sq7s9vcHlRG/preview",
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 4,
+    "title": "Indian Constitution",
+    "code": "BICOK107",
+    "category": "programming",
+    "semester": "1",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/17WIR2HLEBRT0QQM4kw1WevirttZs7GeS/preview",
+    "solutionLink": null,
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 5,
+    "title": "Scientific Foundation Of Health",
+    "code": "BSFHK158",
+    "category": "basic_science",
+    "semester": "1",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1Cac42RDBC9UtXGKfUi5Me14FG-aLc-6W/preview",
+    "solutionLink": "https://drive.google.com/file/d/1Cac42RDBC9UtXGKfUi5Me14FG-aLc-6W/preview",
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 6,
+    "title": "Introduction to Civil Engineering",
+    "code": "BESCK104A",
+    "category": "programming",
+    "semester": "1",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1QJ4wQU-KobTDanBtL11C0W2cjq-BHShQ/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1hgoSu8mT6Z6IkMJfHUSFmGuV9OR-m1Vi/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 7,
+    "title": "Mathematics For CSE",
+    "code": "BMATS201",
+    "category": "programming",
+    "semester": "2",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1cWG4jvZRZ2iBJA09t0WRW78dqw2vdm9x/preview",
+    "solutionLink": "https://drive.google.com/file/d/1BXyhq4ZiTLbhpIwJHGkRYe60rbJQqQne/preview",
+    "oldPaperLink": null,
+    "popularity": "very-high"
+  },
+  {
+    "id": 8,
+    "title": "Applied Chemistry For CSE",
+    "code": "BCHES102/202",
+    "category": "programming",
+    "semester": "2",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1lnD5TTvI5X_8sng4E0qzT5pGCr74z6LL/preview",
+    "solutionLink": "https://drive.google.com/file/d/15WLqIDiaKljyJWdl0XsWBWfB-lTJiiS1/preview",
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 9,
+    "title": "Introduction to Python Programming",
+    "code": "BPLCK105/205B",
+    "category": "programming",
+    "semester": "2",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1aylHWxDTEvZ9W3oZDX2vUy3luveUwKlX/preview",
+    "solutionLink": null,
+    "oldPaperLink": null,
+    "popularity": "very-high"
+  },
+  {
+    "id": 10,
+    "title": "Computer Aided Engineering Drawing",
+    "code": "BCEDK203",
+    "category": "basic_science",
+    "semester": "2",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1Fc3yVkZZ2aBnQ5fiuGPxHKZ79tDIAgRK/preview",
+    "solutionLink": null,
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 11,
+    "title": "Samskrutika Kannada",
+    "code": "BKSKK207",
+    "category": "basic_science",
+    "semester": "2",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1WF1xwH9qupTMAh1LQ1jjG6_eW7gLSoU0/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1Cac42RDBC9UtXGKfUi5Me14FG-aLc-6W/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 12,
+    "title": "Innovation and Design Thinking",
+    "code": "BIDTK258",
+    "category": "basic_science",
+    "semester": "2",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1Cb5HxUCDqcRz9VxyLF6di55NKhlmuYYF/preview",
+    "solutionLink": null,
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 13,
+    "title": "Introduction to Electrical Engineering",
+    "code": "BESCK104/204B",
+    "category": "basic_science",
+    "semester": "2",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1H0aicsDIdGfwoT3UcZ5XXGyswiwL9PXc/preview",
+    "solutionLink": null,
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 14,
+    "title": "Mathematics For CSE",
+    "code": "BMATS301",
+    "category": "basic_science",
+    "semester": "3",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1tN6tJ98BmS1r_Z6LagP4S8JS-mqLPTnf/preview",
+    "solutionLink": "https://drive.google.com/file/d/1hgCehi2mfVkYhNfveEEZqCgLLoW4RIFF/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1ZlfCQX1dAHU6UERsaOlEiA4PeSKWWNk5/preview",
+    "popularity": "very-high"
+  },
+  {
+    "id": 15,
+    "title": "Digital Design and Computer Organization",
+    "code": "BCS302",
+    "category": "core",
+    "semester": "3",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1NiPGff-dHUVkhmlroj51BvWtax-2odpG/view?usp=d/preview",
+    "solutionLink": "https://drive.google.com/file/d/1xROR5IqItpPVinhNgAJ0RBexaho7LEcE/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1xROR5IqItpPVinhNgAJ0RBexaho7LEcE/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 16,
+    "title": "OPERATING SYSTEMS",
+    "code": "BCS303",
+    "category": "core",
+    "semester": "3",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/15HBsmBHnOXNhRycK_8pQ0pfTpUIjplMt/preview",
+    "solutionLink": "https://drive.google.com/file/d/1LZTpPvlsoJKFuyVyIseHuRxbVqdIqw9Y/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1enDKUJLGxdjgsEMOuEeNiQFaoQP9m7gN/preview",
+    "popularity": "very-high"
+  },
+  {
+    "id": 17,
+    "title": "DATA STRUCTURES AND APPLICATIONS",
+    "code": "BCS304",
+    "category": "core",
+    "semester": "3",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1GLq4quNzdSomnGh6Y2ilFvjQuXM9JO6z/preview",
+    "solutionLink": "https://drive.google.com/file/d/1NT_kKeN4Z0UiW-OhHwgq-8vxWoW2RRAS/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/16hGQQlfOdePqioOpN0oBN8ZbQBAzlA2X/preview",
+    "popularity": "very-high"
+  },
+  {
+    "id": 18,
+    "title": "Object Oriented Programming with JAVA",
+    "code": "BCS306A'",
+    "category": "core",
+    "semester": "3",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1q05hkIDeTilr4zqIaEwGFD_daN7hpIw5/preview",
+    "solutionLink": "https://drive.google.com/file/d/1iVE_rPUCBYQKJU9OKhZ8D_zmI33D8a7T/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1wj3e8ibE2BGqbmyS-CgKRk6_0SDAegF1/preview",
+    "popularity": "very-high"
+  },
+  {
+    "id": 19,
+    "title": "OBJECT ORIENTED PROGRAMMING with C++",
+    "code": "BCS306B",
+    "category": "core",
+    "semester": "3",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1mNOnt2Tvkegvx-zAvGelFCC4bmwOfIV3/preview",
+    "solutionLink": null,
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 20,
+    "title": "DATA STRUCTURES LABORATORY",
+    "code": "",
+    "category": "core",
+    "semester": "3",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1WF1xwH9qupTMAh1LQ1jjG6_eW7gLSoU0/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1Cac42RDBC9UtXGKfUi5Me14FG-aLc-6W/preview",
+    "popularity": "very-high"
+  },
+  {
+    "id": 21,
+    "title": "Social Connect & Responsibility",
+    "code": "21SCR38",
+    "category": "core",
+    "semester": "3",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1WF1xwH9qupTMAh1LQ1jjG6_eW7gLSoU0/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1Cac42RDBC9UtXGKfUi5Me14FG-aLc-6W/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 22,
+    "title": "Analysis & Design of Algorithms",
+    "code": "BCS402",
+    "category": "core",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1U-laCBUAydCFwnqFW5nmPgGHVWv3lPt1/preview",
+    "solutionLink": "https://drive.google.com/file/d/1U-laCBUAydCFwnqFW5nmPgGHVWv3lPt1/preview",
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 23,
+    "title": "MICROCONTROLLERS",
+    "code": "BCS402",
+    "category": "core",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1bFd7GbQA6GycngDouhlvhnjNAoPW6t6q/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1aVBwZ8K9iHTS_uTiROIZjYcNovQUbv3b/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 24,
+    "title": "DATABASE MANAGEMENT SYSTEM",
+    "code": "BCS403",
+    "category": "core",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1ZIuMbL4yJbnBgp8NrU-PqwO35udCZlA1/preview",
+    "solutionLink": null,
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 25,
+    "title": "DISCRETE MATHEMATICAL STRUCTURES",
+    "code": "BCS405A",
+    "category": "core",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1rFJKUntE4UNWRL1IMg2QjWzkVoeEFeuG/preview",
+    "solutionLink": "https://drive.google.com/file/d/1wiliZvzo0-Zc2E_UMZDhXuNa2mKgKjw5/preview",
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 26,
+    "title": "GRAPH THEORY",
+    "code": "BCS405B",
+    "category": "core",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1Jdgxk2UiVeXb-TJJywapMucYhW_HLqj3/preview",
+    "solutionLink": "https://drive.google.com/file/d/15m3xXKv-Os6JlQI6QvlTnBet7lI2ynCx/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1Sb3hCekSG3Z9fdEq0H_qRqxTzz7w8XIE/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 27,
+    "title": "Analysis & Design of Algorithms Lab",
+    "code": "BCSL404",
+    "category": "core",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1WF1xwH9qupTMAh1LQ1jjG6_eW7gLSoU0/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1Cac42RDBC9UtXGKfUi5Me14FG-aLc-6W/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 28,
+    "title": "ARTIFICIAL INTELLIGENCE",
+    "code": "BAD402",
+    "category": "core",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1o73EvSDKnuy5qcoLitiaCSAYZ4PeMNSu/preview",
+    "solutionLink": null,
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 29,
+    "title": "BIOLOGY FOR ENGINEERS",
+    "code": "BCS405C",
+    "category": "basic_science",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1h_udrhNRqd0UiwdM8bVeH_PTXyWsVcKB/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1aD7ZjnBroS5GvDCcULUJ-F9mrkRgU826/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 30,
+    "title": "Software Engineering & Project Management",
+    "code": "BCS501",
+    "category": "core",
+    "semester": "5",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1TUx_F_ldZje158xHr-7juovCHZanzDQU/preview",
+    "solutionLink": "https://drive.google.com/file/d/1aHbJ6mj2m71hYtjnTt-ODAZXLnavDPF4/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1cgqyDznfxuOM3QmEgtWn0-YBiNv3B-il/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 31,
+    "title": "COMPUTER NETWORKS",
+    "code": "BCS502",
+    "category": "core",
+    "semester": "5",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1hN5bPv6Ida2mef6CXeJoE4YXCoZ4UfHr/preview",
+    "solutionLink": "https://drive.google.com/file/d/10ENVRIXIu0mJDN-9HfkDIyciEWItiXb6/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1MQ0_LjfVOgeB0UFW6LTSnVjy_4Uw-Z0N/preview",
+    "popularity": "very-high"
+  },
+  {
+    "id": 32,
+    "title": "ARTIFICIAL INTELLIGENCE",
+    "code": "BCS525B",
+    "category": "core",
+    "semester": "5",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1WF1xwH9qupTMAh1LQ1jjG6_eW7gLSoU0/preview",
+    "solutionLink": "https://drive.google.com/file/d/1Tk6xZC9hMrbLHgiFaHie5uiMDQ3s5YJ3/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1Cac42RDBC9UtXGKfUi5Me14FG-aLc-6W/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 33,
+    "title": "FULL STACK DEVELOPMENT",
+    "code": "21CS55",
+    "category": "core",
+    "semester": "5",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1WF1xwH9qupTMAh1LQ1jjG6_eW7gLSoU0/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1Cac42RDBC9UtXGKfUi5Me14FG-aLc-6W/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 34,
+    "title": "RESEARCH AND METHO AND IPR",
+    "code": "BRMK557",
+    "category": "core",
+    "semester": "5",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1-30gK3LYRL6J1zgepkqzaOmc4OvD0AnG/preview",
+    "solutionLink": "https://drive.google.com/file/d/1BBkuv6CHqrWqP7szFL1uzA3gsXzdntCu/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1-30gK3LYRL6J1zgepkqzaOmc4OvD0AnG/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 35,
+    "title": "Environmental Studies",
+    "code": "21EV57",
+    "category": "elective",
+    "semester": "5",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1tW1jd9r3Kof_8Y4SbI592C_BTkrcwL3W/preview",
+    "solutionLink": "https://drive.google.com/file/d/1R-hi6-za7sokZhVqQsyKv9m56ge6wDCL/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/14fYP5dgZp4EURk-Mr1WeFlWVCeZTeiRt/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 36,
+    "title": "Unix System Programming",
+    "code": "BCS515C",
+    "category": "core",
+    "semester": "5",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1Blttayw5q6cGL7OLd1ufoV5hGv5PZLPH/preview",
+    "solutionLink": "https://drive.google.com/file/d/1TuS1E1iSPJ7G5vyfcreNjq4_m6O6ZFuQ/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1uLiZKT2rA7GMgqMaYzH7IAGu5KcgOSgv/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 37,
+    "title": "THEORY OF COMPUTATION",
+    "code": "BCS503",
+    "category": "core",
+    "semester": "5",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1UqP3Q51_T-0aGTk8QQeBjWSF2y4oeEto/preview",
+    "solutionLink": "https://drive.google.com/file/d/1OfbbBXT1eYl-mAruZYJZzNiRotujQe5E/preview",
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 38,
+    "title": "Microcontrollers & Embedded Systems",
+    "code": "BCO601",
+    "category": "core",
+    "semester": "6",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1BUbRTKVfkXgLlLsmZ5AqD7ANrvRQzC3D/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1BmqvVe8WhNCRsXdVT3K-4x8sJbKWDq0l/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 39,
+    "title": "CLOUD COMPUTING",
+    "code": "BCS601,BIS613D",
+    "category": "core",
+    "semester": "6",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1lNZUZNCCaJM33y_kzv3sbJSird2AmCRM/preview",
+    "solutionLink": "https://drive.google.com/file/d/1p6_qanjmcbp1z7X9XYrKZxy1dwfSLO4R/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/11aOchNzYu0p5nvYKYtoa3iZKG2x-SK6B/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 40,
+    "title": "WATER CONSERVATION AND RAIN WATER HARVESTING",
+    "code": "BCV654A",
+    "category": "core",
+    "semester": "6",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1bOrd1-U9omf_IH3ZS5gWPceSfP01O4a8/preview",
+    "solutionLink": "https://drive.google.com/file/d/1bOrd1-U9omf_IH3ZS5gWPceSfP01O4a8/preview",
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 41,
+    "title": "Natural Language Processing",
+    "code": "BAI601",
+    "category": "core",
+    "semester": "6",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1WF1xwH9qupTMAh1LQ1jjG6_eW7gLSoU0/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1Cac42RDBC9UtXGKfUi5Me14FG-aLc-6W/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 42,
+    "title": "ARTIFICIAL INTELLIGENCE",
+    "code": "21CS69",
+    "category": "core",
+    "semester": "6",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1o73EvSDKnuy5qcoLitiaCSAYZ4PeMNSu/preview",
+    "solutionLink": null,
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 43,
+    "title": "BIOLOLY FOR ENGINEERS",
+    "code": "21BE70",
+    "category": "elective",
+    "semester": "6",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1h_udrhNRqd0UiwdM8bVeH_PTXyWsVcKB/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1aD7ZjnBroS5GvDCcULUJ-F9mrkRgU826/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 44,
+    "title": "Integrated Waste Management for Smart City",
+    "code": "21IW64",
+    "category": "core",
+    "semester": "6",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1S6IqRQY87HsRhsqKC3CWsljih5zQoWt-/preview",
+    "solutionLink": "https://drive.google.com/file/d/1RXzRXZKEf3q60oNmuWiCC4bqr8KYhFPa/preview",
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 45,
+    "title": "BIG DATA ANALYTICS",
+    "code": "BCS714D",
+    "category": "core",
+    "semester": "7",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1YyscUweUvfoV0BP0RQvrUREgv7mOpmAS/preview",
+    "solutionLink": "https://drive.google.com/file/d/1m9VH6NBghr7IWFk2v798RrMbLXeZQahf/preview",
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 46,
+    "title": "Cryptography & Network Security",
+    "code": "BCO601",
+    "category": "core",
+    "semester": "7",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1BzdLI_W8Cw9CrnyoJip_OLKoEQu-fLpg/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1OKuuW3HnLFZD6PcGhMvW1FImjnI-8fxo/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 47,
+    "title": "CONSERVATION OF NATURAL RESOURCES",
+    "code": "BCV755B",
+    "category": "core",
+    "semester": "7",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1D5X9yRrnZ5T_r-jA0m1TQWOHAA2JyPi/preview",
+    "solutionLink": "https://drive.google.com/file/d/1c1RSOovace8BaeF_1LbM_2DTeL4fyKFO/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1-dNfufKKZWO3I4EARVDYSURFB6KMGexz/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 48,
+    "title": "Parallel Computing",
+    "code": "BCS702",
+    "category": "core",
+    "semester": "7",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/170ExErQsAgDRdAlwd2vRcYSu43RaIgb_/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1gigxbfaP9OQJhGRlpmNvRu9H1UgDBcBc/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 49,
+    "title": "Computer Organization and Architecture",
+    "code": "BEC306C",
+    "category": "core",
+    "semester": "3",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1EHnMkn1PkQRSocHJ8h8M9ht8W59qB1ZS/preview",
+    "solutionLink": "https://drive.google.com/file/d/1b1aubqMWwZf0de7OjiahFlvM8wXB8fon/preview",
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 50,
+    "title": "Digital System Design using Verilog",
+    "code": "BEC302",
+    "category": "core",
+    "semester": "3",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1DyZxyX02nQG5MdtSgmSjZSFZOCw_MG5X/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1sMO-3Xr4-_jfbpOUYinP-DOjKrUPCLa7/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 51,
+    "title": "Digital Communication",
+    "code": "BEC503",
+    "category": "core",
+    "semester": "5",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1-17LanqQDcFIeEEAdT2z9f3H65t1a-Nd/preview",
+    "solutionLink": "https://drive.google.com/file/d/1BLUIWB4tfooTd00t-gjsuoXDRLJWMfov/preview",
+    "oldPaperLink": null,
+    "popularity": "medium"
+  },
+  {
+    "id": 52,
+    "title": "Technological Innovation Management and Entrepreneurship",
+    "code": "BEC501",
+    "category": "core",
+    "semester": "5",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1Er_L83h4iDUyxT0Rg1p7TUBWmpjpWM5X/preview",
+    "solutionLink": "https://drive.google.com/file/d/1vLxPqQe6vpECDPtRTepwXGcRhmKNziFt/preview",
+    "oldPaperLink": "https://drive.google.com/file/d/1ic4WdSsfgPpxNqudGWeTh-xYeIVOYWrb/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 53,
+    "title": "Network Analysis",
+    "code": "BEC304",
+    "category": "core",
+    "semester": "3",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1QAMHkdLN1LDOQvkFOcWf1W7HddrBMy4O/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1z6VT-5KnX_l7caf6CqfyU8Fa47WhNk5L/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 54,
+    "title": "Electromagnetics Theory",
+    "code": "BEC401",
+    "category": "core",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1ehYBhE-Mg0chQr8eGBGoVsV75XUGwo2B/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1U4LfrGtTeu198HUfnE8o2M_R3hBvC_gj/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 55,
+    "title": "Principles of Communication System",
+    "code": "BEC402",
+    "category": "core",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/19ZiZ6HI3A1--VEWnWh7yEBucmqjWhzVg/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1qxv_CLPoC2dNPkZBzXuUlGPyXXC1V0dV/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 56,
+    "title": "Control Systems",
+    "code": "BEC403",
+    "category": "core",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/14oonIJBEsBO7sAsPxuB_T9hHIVqO2fYW/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/1JXOZ5pWRuDotWeTROehUSSR1_M9M8awS/preview",
+    "popularity": "medium"
+  },
+  {
+    "id": 57,
+    "title": "Microcontroller",
+    "code": "BEC405A",
+    "category": "core",
+    "semester": "4",
+    "year": "2024",
+    "modelPaperLink": "https://drive.google.com/file/d/1x_918aG_WjyQ6KlXVkxAx-R8VYuUD8Y9/preview",
+    "solutionLink": null,
+    "oldPaperLink": "https://drive.google.com/file/d/13Hnbhz64P38BVe0xYz9hqwddbQl0Ru6q/preview",
+    "popularity": "medium"
+  }
+];
+
+const categories = [
+  { id: 'all', label: 'All Papers', icon: <HiInbox />, color: '#8B5CF6' },
+  { id: 'core', label: 'Core Subjects', icon: <HiAcademicCap />, color: '#3B82F6' },
+  { id: 'elective', label: 'Electives', icon: <HiStar />, color: '#10B981' },
+  { id: 'basic_science', label: 'Basic Sciences', icon: <FaLayerGroup />, color: '#F59E0B' },
+  { id: 'programming', label: 'Programming', icon: <HiDocumentText />, color: '#EC4899' }
+];
+
+const semesters = [
+  { id: 'all', label: 'All Sems', icon: '📅' },
+  { id: '1', label: 'Sem 1', icon: '1️⃣' },
+  { id: '2', label: 'Sem 2', icon: '2️⃣' },
+  { id: '3', label: 'Sem 3', icon: '3️⃣' },
+  { id: '4', label: 'Sem 4', icon: '4️⃣' },
+  { id: '5', label: 'Sem 5', icon: '5️⃣' },
+  { id: '6', label: 'Sem 6', icon: '6️⃣' },
+  { id: '7', label: 'Sem 7', icon: '7️⃣' },
+  { id: '8', label: 'Sem 8', icon: '8️⃣' },
+];
+
+const ModelPapers = () => {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [selectedCategory, setSelectedCategory] = React.useState('all');
+  const [selectedSemester, setSelectedSemester] = React.useState('all');
+  const [sortBy, setSortBy] = React.useState('alphabetical');
+  const [filteredPapers, setFilteredPapers] = React.useState(papers);
+  const [isDarkMode, setIsDarkMode] = React.useState(() => localStorage.getItem("theme") === "dark");
+  const [bookmarkedPapers, setBookmarkedPapers] = React.useState(() => JSON.parse(localStorage.getItem('paperBookmarks') || '[]'));
+  const [showBookmarks, setShowBookmarks] = React.useState(false);
+  const [selectedPaper, setSelectedPaper] = React.useState(null);
+  const [showScrollTop, setShowScrollTop] = React.useState(false);
+  const [showAdWall, setShowAdWall] = React.useState(false);
+  const [pendingResource, setPendingResource] = React.useState(null);
+  const [isMobile, setIsMobile] = React.useState(false);
+  
+  // NEW: Advanced Features
+  const [viewMode, setViewMode] = React.useState('grid'); // grid or list
+  const [scrollProgress, setScrollProgress] = React.useState(0);
+  const [toast, setToast] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  // Toast Notification System
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  // Mobile Detection
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Loading State
+  React.useEffect(() => {
+    setTimeout(() => setIsLoading(false), 800);
+  }, []);
+
+  // Scroll Progress Indicator
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / docHeight) * 100;
+      setScrollProgress(progress);
+      setShowScrollTop(scrollTop > 300);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Keyboard Shortcuts
+  React.useEffect(() => {
+    const handleKeyPress = (e) => {
+      // Ctrl/Cmd + K: Focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        document.querySelector('.search-pill input')?.focus();
+      }
+      // Escape: Clear search or close modal
+      if (e.key === 'Escape') {
+        if (selectedPaper) setSelectedPaper(null);
+        else if (searchTerm) setSearchTerm('');
+      }
+      // Ctrl/Cmd + B: Toggle bookmarks
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        setShowBookmarks(!showBookmarks);
+      }
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [selectedPaper, searchTerm, showBookmarks]);
+
+  React.useEffect(() => {
+    let result = [...papers];
+    if (searchTerm) {
+      result = result.filter(p =>
+        p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.code.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    if (selectedCategory !== 'all') result = result.filter(p => p.category === selectedCategory);
+    if (selectedSemester !== 'all') result = result.filter(p => p.semester === selectedSemester);
+
+    result.sort((a, b) => {
+      if (sortBy === 'alphabetical') return a.title.localeCompare(b.title);
+      if (sortBy === 'newest') return parseInt(b.year) - parseInt(a.year);
+      if (sortBy === 'semester') return parseInt(a.semester) - parseInt(b.semester);
+      if (sortBy === 'popularity') {
+        const order = { 'very-high': 4, 'high': 3, 'medium': 2, 'low': 1 };
+        return (order[b.popularity] || 0) - (order[a.popularity] || 0);
+      }
+      return 0;
+    });
+    setFilteredPapers(result);
+  }, [searchTerm, selectedCategory, selectedSemester, sortBy]);
+
+  React.useEffect(() => {
+    localStorage.setItem('paperBookmarks', JSON.stringify(bookmarkedPapers));
+  }, [bookmarkedPapers]);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  const handleOpenHub = (paper, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    console.log("Opening Hub for:", paper.title);
+    setPendingResource(paper);
+    setShowAdWall(true);
+  };
+
+  const handleAdWallComplete = () => {
+    setShowAdWall(false);
+    if (pendingResource) {
+      setSelectedPaper(pendingResource);
+      setPendingResource(null);
+    }
+  };
+
+  const handleCloseHub = (e) => {
+    if (e) e.stopPropagation();
+    setSelectedPaper(null);
+  };
+
+  const toggleBookmark = (id) => {
+    const isBookmarked = bookmarkedPapers.includes(id);
+    setBookmarkedPapers(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    showToast(isBookmarked ? 'Bookmark removed' : 'Bookmark added', 'success');
+  };
+
+  const getPaperShareUrl = (paper) => `${window.location.origin}/pdf/${encodeURIComponent(paper.modelPaperLink || paper.solutionLink)}`;
+
+  const handleCopyLink = async (paper) => {
+    try {
+      await navigator.clipboard.writeText(getPaperShareUrl(paper));
+      showToast('Study paper link copied.', 'success');
+    } catch {
+      showToast('Clipboard access is unavailable in this browser.', 'error');
+    }
+  };
+
+  const getDownloadLink = (url) => {
+    if (!url) return null;
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    return match ? `https://drive.google.com/uc?export=download&id=${match[1]}` : url;
+  };
+
+  return (
+    <div className={`papers-portal-root ${isDarkMode ? 'dark' : 'light'}`}>
+      <InterstitialAdModal 
+        isOpen={showAdWall} 
+        onClose={() => setShowAdWall(false)}
+        onComplete={handleAdWallComplete}
+        resourceTitle={pendingResource?.title}
+      />
+      {/* --- Floating Background Elements --- */}
+      <div className="papers-background-shapes">
+        <div className="shape s1"></div>
+        <div className="shape s2"></div>
+        <div className="geo-shape hexagon geo-1"></div>
+        <div className="geo-shape triangle geo-2"></div>
+        <div className="geo-shape hexagon geo-3"></div>
+        <div className="geo-shape triangle geo-4"></div>
+      </div>
+
+      <div className="papers-hero-layer">
+        <div className="portal-container">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="papers-hero-card"
+          >
+            <div className="hero-mesh-bg"></div>
+            <div className="hero-brand">
+              <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                className="brand-glow"
+              ></motion.div>
+              <motion.h1 layout>
+                Model Papers <span className="version-tag">3.0</span>
+              </motion.h1>
+              <p className="hero-p">Experience the future of VTU resource accessibility.</p>
+            </div>
+
+            <div className="hero-stats-island">
+              <div className="hero-stat">
+                <span className="stat-value">{papers.length}</span>
+                <span className="stat-tag">Cataloged</span>
+              </div>
+              <div className="hero-stat-divider"></div>
+              <div className="hero-stat">
+                <span className="stat-value">{bookmarkedPapers.length}</span>
+                <span className="stat-tag">Saved</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="papers-main-content portal-container">
+        
+        {/* --- LIVE TRAFFIC HUB (Moved to Top) --- */}
+        {!showBookmarks && (
+          <div className="trending-hub-top" style={{marginBottom: '50px'}}>
+             <div className="trending-barrier">
+                <div className="barrier-line"></div>
+                  <span style={{color: '#3B5FC0', fontWeight: '900', letterSpacing: '2px'}}>POPULAR SUBJECTS</span>
+                <div className="barrier-line"></div>
+             </div>
+             <div className="trending-scroller" style={{display: 'flex', gap: '20px', overflowX: 'auto', paddingBottom: '10px'}}>
+                {papers.filter(p => p.popularity === 'very-high').slice(0, 10).map(p => (
+                  <motion.div
+                    whileHover={{ scale: 1.05, borderColor: '#F59E0B' }}
+                    key={p.id}
+                    className="trending-mini-card"
+                    style={{minWidth: '280px', border: '1px solid rgba(255,255,255,0.1)'}}
+                    onClick={() => setSelectedPaper(p)}
+                  >
+                    <div className="mini-icon" style={{background: 'rgba(245, 158, 11, 0.2)'}}><FaBolt color="#F59E0B"/></div>
+                    <div className="mini-info">
+                      <h4 style={{color: 'white', fontSize: '0.9rem'}}>{p.title}</h4>
+                      <span style={{color: '#94A3B8', fontSize: '0.75rem'}}>{p.code}</span>
+                    </div>
+                  </motion.div>
+                ))}
+             </div>
+          </div>
+        )}
+
+        {/* -- Futuristic Island Control Bar -- */}
+        <div className="papers-island-controls glass-noise">
+          <div className="search-pill">
+            <HiMagnifyingGlass className="search-icon-act" />
+            <input
+              type="text"
+              placeholder="System Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && <HiXMark className="clear-icon" onClick={() => setSearchTerm('')} />}
+          </div>
+
+          <div className="filter-pill-group">
+            <div className="sort-pill">
+              <HiAdjustmentsHorizontal />
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                <option value="alphabetical">Name</option>
+                <option value="newest">Recent</option>
+                <option value="semester">Sem</option>
+                <option value="popularity">Hot</option>
+              </select>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className={`bookmark-toggle-pill ${showBookmarks ? 'active' : ''}`}
+              onClick={() => setShowBookmarks(!showBookmarks)}
+            >
+              <HiStar />
+            </motion.button>
+          </div>
+        </div>
+
+        {/* -- Category Scroller -- */}
+        <div className="category-scroller">
+          <div className="scroller-inner">
+            {categories.map(cat => (
+              <motion.button
+                key={cat.id}
+                whileHover={{ y: -2 }}
+                className={`cat-chip ${selectedCategory === cat.id ? 'active' : ''}`}
+                onClick={() => setSelectedCategory(cat.id)}
+              >
+                <div className="cat-icon-frame">{cat.icon}</div>
+                <span>{cat.label}</span>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+
+        {/* -- Semester Grid -- */}
+        <div className="sem-pill-grid">
+          {semesters.map(sem => (
+            <motion.button
+              key={sem.id}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`sem-pill ${selectedSemester === sem.id ? 'active' : ''}`}
+              onClick={() => setSelectedSemester(sem.id)}
+            >
+              {sem.label}
+            </motion.button>
+          ))}
+        </div>
+
+        {/* -- Papers Grid with 3D Tilt Effect Look -- */}
+        <motion.div layout className="papers-high-grid">
+          <AnimatePresence mode='popLayout'>
+            {(showBookmarks ? papers.filter(p => bookmarkedPapers.includes(p.id)) : filteredPapers).map((paper, idx) => (
+              <React.Fragment key={paper.id}>
+              <motion.div
+                layout
+                key={paper.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4, delay: idx * 0.03 }}
+                whileHover={{ y: -8, perspective: 1000 }}
+                className={`paper-high-card ${paper.popularity === 'very-high' ? 'is-hot-glow' : ''} ${paper.year === '2024' ? 'is-new-glow' : ''}`}
+              >
+                {/* -- INJECT MULTIPLEX AD EVERY 8 CARDS -- */}
+                {idx > 0 && idx % 8 === 0 && (
+                   <div style={{ position: 'absolute', top: '-20px', left: 0, right: 0, zIndex: 10 }}>
+                      <span className="ad-badge" style={{ background: '#F59E0B', color: 'black', padding: '2px 8px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 'bold' }}>AD</span>
+                   </div>
+                )}
+                <div className="card-glass-noise"></div>
+                <div className="paper-card-top">
+                  <div className={`paper-type-tag ${paper.category}`}>{paper.category.replace('_', ' ')}</div>
+                  <motion.button
+                    whileTap={{ scale: 1.5 }}
+                    onClick={() => toggleBookmark(paper.id)}
+                    className={`paper-save-btn ${bookmarkedPapers.includes(paper.id) ? 'saved' : ''}`}
+                  >
+                    {bookmarkedPapers.includes(paper.id) ? <HiBookmark /> : <HiOutlineBookmark />}
+                  </motion.button>
+                </div>
+
+                <div className="paper-card-body">
+                  <div className="paper-id-vibe">{paper.code}</div>
+                  <h3>{paper.title}</h3>
+                  <div className="paper-meta-row">
+                    <span className="meta-item"><HiAcademicCap /> Sem {paper.semester}</span>
+                    <span className="meta-item"><HiCalendar /> {paper.year}</span>
+                    {paper.popularity === 'very-high' && <span className="meta-hot"><div className="hot-pulse"></div> HOT</span>}
+                    {paper.year === '2024' && <span className="meta-new"><HiFire /> NEW</span>}
+                  </div>
+                </div>
+
+                <div className="paper-card-footer">
+                  <button className="paper-prime-btn view" onClick={(e) => handleOpenHub(paper, e)}>
+                    <HiEye /> <span>Open Hub</span>
+                  </button>
+                  <a href={getDownloadLink(paper.modelPaperLink || paper.oldPaperLink)} download className="paper-prime-btn download" onClick={(e) => e.stopPropagation()}>
+                    <HiArrowDownTray />
+                  </a>
+                </div>
+              </motion.div>
+               {/* Inject In-Feed Ad after every 8th item */}
+               {(idx + 1) % 8 === 0 && (
+                  <motion.div 
+                    layout 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    className="paper-high-card ad-card-container"
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      gridColumn: 'span 1'
+                    }}
+                  >
+                     <AdSenseAd 
+                        adClient="ca-pub-9499544849301534" 
+                        adSlot="5502713194" 
+                        adFormat="autorelaxed"
+                        fullWidthResponsive={true}
+                     />
+                  </motion.div>
+               )}
+              </React.Fragment>
+
+
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {filteredPapers.length === 0 && (
+          <div className="papers-empty-state">
+            <HiInbox className="empty-icon" />
+            <h3 className="empty-h">System Empty</h3>
+            <p className="empty-p">No resources detected for this query.</p>
+            <button className="reset-btn-vibe" onClick={() => { setSearchTerm(''); setSelectedCategory('all'); setSelectedSemester('all'); }}>Re-initialize</button>
+          </div>
+        )}
+      </div>
+
+
+
+      <div className="portal-footer-ad portal-container">
+        <AdSenseAd adClient="ca-pub-9499544849301534" adSlot="7579321744" adFormat="auto" fullWidthResponsive={true} />
+        <CommentSection />
+      </div>
+
+      {/* --- High-Fidelity Glass Drawer --- */}
+      <AnimatePresence>
+        {selectedPaper && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleCloseHub}
+              className="paper-drawer-overlay"
+            />
+            <motion.div
+              initial={isMobile ? { opacity: 0, y: "100%" } : { opacity: 0, x: "100%" }}
+              animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, x: 0 }}
+              exit={isMobile ? { opacity: 0, y: "100%" } : { opacity: 0, x: "100%" }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="paper-glass-drawer"
+            >
+              {isMobile && <div className="drawer-drag-handle"></div>}
+              
+              {/* PREMIUM HEADER */}
+              <div className="drawer-header-premium">
+                <div className="header-top">
+                  <button className="close-drawer" onClick={handleCloseHub}><HiXMark /></button>
+                  <div className="header-badges">
+                    <span className="badge-pill primary">Sem {selectedPaper.semester}</span>
+                    <span className="badge-pill accent">{selectedPaper.year}</span>
+                    {selectedPaper.popularity === 'very-high' && <span className="badge-pill hot">🔥 Trending</span>}
+                  </div>
+                </div>
+                
+                <div className="header-title-section">
+                  <div className="title-icon-box">
+                    <FaFilePdf />
+                  </div>
+                  <div>
+                    <div className="code-badge">{selectedPaper.code}</div>
+                    <h2 className="drawer-title">{selectedPaper.title}</h2>
+                  </div>
+                </div>
+
+                {/* SMART STATISTICS */}
+                <div className="paper-stats-grid">
+                  <div className="stat-mini">
+                    <HiEye />
+                    <div>
+                      <strong>{papers.filter(p => p.semester === selectedPaper.semester).length}</strong>
+                      <span>papers this semester</span>
+                    </div>
+                  </div>
+                  <div className="stat-mini">
+                    <HiArrowDownTray />
+                    <div>
+                      <strong>{[selectedPaper.modelPaperLink, selectedPaper.solutionLink, selectedPaper.oldPaperLink].filter(Boolean).length}</strong>
+                      <span>available files</span>
+                    </div>
+                  </div>
+                  <div className="stat-mini">
+                    <HiStar />
+                    <div>
+                      <strong>{selectedPaper.year || '—'}</strong>
+                      <span>paper year</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* INNOVATIVE TAB SYSTEM */}
+              <div className="hub-tabs-container">
+                <div className="hub-tabs">
+                  {['Preview', 'Download', 'Share', 'Related'].map((tab) => (
+                    <button
+                      key={tab}
+                      className={`hub-tab ${selectedPaper.activeTab === tab || (!selectedPaper.activeTab && tab === 'Preview') ? 'active' : ''}`}
+                      onClick={() => setSelectedPaper({...selectedPaper, activeTab: tab})}
+                    >
+                      {tab === 'Preview' && <HiEye />}
+                      {tab === 'Download' && <HiArrowDownTray />}
+                      {tab === 'Share' && <HiShare />}
+                      {tab === 'Related' && <FaLayerGroup />}
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="hub-tab-content">
+                  {/* PREVIEW TAB - ENHANCED MULTI-PREVIEW */}
+                  {(!selectedPaper.activeTab || selectedPaper.activeTab === 'Preview') && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="tab-panel"
+                    >
+                      {/* Resource Preview Tabs */}
+                      <div className="preview-resource-tabs">
+                        {selectedPaper.modelPaperLink && (
+                          <button
+                            className={`resource-tab ${!selectedPaper.previewResource || selectedPaper.previewResource === 'model' ? 'active' : ''}`}
+                            onClick={() => setSelectedPaper({...selectedPaper, previewResource: 'model'})}
+                          >
+                            <FaFilePdf />
+                            <div>
+                              <strong>Model Paper</strong>
+                              <span>Official</span>
+                            </div>
+                          </button>
+                        )}
+                        
+                        {selectedPaper.solutionLink && (
+                          <button
+                            className={`resource-tab ${selectedPaper.previewResource === 'solution' ? 'active' : ''}`}
+                            onClick={() => setSelectedPaper({...selectedPaper, previewResource: 'solution'})}
+                          >
+                            <HiStar />
+                            <div>
+                              <strong>Solutions</strong>
+                              <span>Verified</span>
+                            </div>
+                          </button>
+                        )}
+                        
+                        {selectedPaper.oldPaperLink && (
+                          <button
+                            className={`resource-tab ${selectedPaper.previewResource === 'old' ? 'active' : ''}`}
+                            onClick={() => setSelectedPaper({...selectedPaper, previewResource: 'old'})}
+                          >
+                            <HiCalendar />
+                            <div>
+                              <strong>Previous</strong>
+                              <span>Archive</span>
+                            </div>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Active Preview Container */}
+                      <div className="preview-iframe-container premium">
+                        <div className="preview-header">
+                          <div className="preview-title-box">
+                            {(!selectedPaper.previewResource || selectedPaper.previewResource === 'model') && (
+                              <>
+                                <FaFilePdf className="preview-icon model" />
+                                <div>
+                                  <h4>Model Paper Preview</h4>
+                                  <span>Official Question Paper • VTU</span>
+                                </div>
+                              </>
+                            )}
+                            {selectedPaper.previewResource === 'solution' && (
+                              <>
+                                <HiStar className="preview-icon solution" />
+                                <div>
+                                  <h4>Solutions Preview</h4>
+                                  <span>Verified Answers • Complete</span>
+                                </div>
+                              </>
+                            )}
+                            {selectedPaper.previewResource === 'old' && (
+                              <>
+                                <HiCalendar className="preview-icon old" />
+                                <div>
+                                  <h4>Previous Papers Preview</h4>
+                                  <span>Past Exam • Reference</span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                          
+                          <div className="preview-actions-compact">
+                            <button 
+                              className="preview-action-btn download-mini"
+                              onClick={() => {
+                                const currentLink = 
+                                  selectedPaper.previewResource === 'solution' ? selectedPaper.solutionLink :
+                                  selectedPaper.previewResource === 'old' ? selectedPaper.oldPaperLink :
+                                  selectedPaper.modelPaperLink;
+                                window.open(getDownloadLink(currentLink), '_blank');
+                                showToast('Download started!', 'success');
+                              }}
+                            >
+                              <HiArrowDownTray />
+                              <span>Download</span>
+                            </button>
+                            
+                            <button 
+                              className="preview-action-btn fullscreen-mini"
+                              onClick={() => {
+                                const currentLink = 
+                                  selectedPaper.previewResource === 'solution' ? selectedPaper.solutionLink :
+                                  selectedPaper.previewResource === 'old' ? selectedPaper.oldPaperLink :
+                                  selectedPaper.modelPaperLink;
+                                navigate(`/pdf/${encodeURIComponent(currentLink)}`);
+                              }}
+                            >
+                              <HiEye />
+                              <span>Full Screen</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        <motion.iframe
+                          key={selectedPaper.previewResource || 'model'}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.3 }}
+                          src={
+                            selectedPaper.previewResource === 'solution' ? selectedPaper.solutionLink :
+                            selectedPaper.previewResource === 'old' ? selectedPaper.oldPaperLink :
+                            selectedPaper.modelPaperLink
+                          }
+                          title="PDF Preview"
+                          className="pdf-preview-frame enhanced"
+                        />
+                        
+                        {/* Preview Controls Bar */}
+                        <div className="preview-controls-bar">
+                          <div className="preview-info-compact">
+                            <HiDocumentText />
+                            <span>PDF Document • High Quality</span>
+                          </div>
+                          
+                          <div className="preview-nav-controls">
+                            {selectedPaper.modelPaperLink && (
+                              <button 
+                                className={`nav-dot ${!selectedPaper.previewResource || selectedPaper.previewResource === 'model' ? 'active' : ''}`}
+                                onClick={() => setSelectedPaper({...selectedPaper, previewResource: 'model'})}
+                                title="Model Paper"
+                              />
+                            )}
+                            {selectedPaper.solutionLink && (
+                              <button 
+                                className={`nav-dot ${selectedPaper.previewResource === 'solution' ? 'active' : ''}`}
+                                onClick={() => setSelectedPaper({...selectedPaper, previewResource: 'solution'})}
+                                title="Solutions"
+                              />
+                            )}
+                            {selectedPaper.oldPaperLink && (
+                              <button 
+                                className={`nav-dot ${selectedPaper.previewResource === 'old' ? 'active' : ''}`}
+                                onClick={() => setSelectedPaper({...selectedPaper, previewResource: 'old'})}
+                                title="Previous Papers"
+                              />
+                            )}
+                          </div>
+                          
+                          <button 
+                            className="preview-share-mini"
+                            onClick={() => setSelectedPaper({...selectedPaper, activeTab: 'Share'})}
+                          >
+                            <HiShare />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Quick Stats Grid */}
+                      <div className="preview-quick-stats">
+                        <div className="quick-stat-item">
+                          <div className="stat-icon-box">
+                            <FaFilePdf />
+                          </div>
+                          <div className="stat-info">
+                            <strong>{[selectedPaper.modelPaperLink, selectedPaper.solutionLink, selectedPaper.oldPaperLink].filter(Boolean).length}</strong>
+                            <span>Resources</span>
+                          </div>
+                        </div>
+                        
+                        <div className="quick-stat-item">
+                          <div className="stat-icon-box">
+                            <HiArrowDownTray />
+                          </div>
+                          <div className="stat-info">
+                            <strong>~2.5 MB</strong>
+                            <span>File Size</span>
+                          </div>
+                        </div>
+                        
+                        <div className="quick-stat-item">
+                          <div className="stat-icon-box">
+                            <HiEye />
+                          </div>
+                          <div className="stat-info">
+                            <strong>HD Quality</strong>
+                            <span>PDF Format</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* All Resources Quick Access */}
+                      <div className="all-resources-compact">
+                        <h4 className="compact-heading">All Available Resources</h4>
+                        <div className="resources-list-compact">
+                          <a 
+                            href={getDownloadLink(selectedPaper.modelPaperLink)} 
+                            download
+                            className="resource-item-compact primary"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <FaFilePdf />
+                            <div className="resource-compact-info">
+                              <strong>Model Paper</strong>
+                              <span>Official Question Paper</span>
+                            </div>
+                            <div className="resource-compact-actions">
+                              <button 
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setSelectedPaper({...selectedPaper, previewResource: 'model'});
+                                }}
+                                className="compact-preview-btn"
+                              >
+                                <HiEye />
+                              </button>
+                              <HiArrowDownTray className="download-icon" />
+                            </div>
+                          </a>
+
+                          {selectedPaper.solutionLink && (
+                            <a 
+                              href={getDownloadLink(selectedPaper.solutionLink)} 
+                              download
+                              className="resource-item-compact"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <HiStar />
+                              <div className="resource-compact-info">
+                                <strong>Solutions</strong>
+                                <span>Verified Answers</span>
+                              </div>
+                              <div className="resource-compact-actions">
+                                <button 
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setSelectedPaper({...selectedPaper, previewResource: 'solution'});
+                                  }}
+                                  className="compact-preview-btn"
+                                >
+                                  <HiEye />
+                                </button>
+                                <HiArrowDownTray className="download-icon" />
+                              </div>
+                            </a>
+                          )}
+
+                          {selectedPaper.oldPaperLink && (
+                            <a 
+                              href={getDownloadLink(selectedPaper.oldPaperLink)} 
+                              download
+                              className="resource-item-compact"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <HiCalendar />
+                              <div className="resource-compact-info">
+                                <strong>Previous Papers</strong>
+                                <span>Past Exam Archive</span>
+                              </div>
+                              <div className="resource-compact-actions">
+                                <button 
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setSelectedPaper({...selectedPaper, previewResource: 'old'});
+                                  }}
+                                  className="compact-preview-btn"
+                                >
+                                  <HiEye />
+                                </button>
+                                <HiArrowDownTray className="download-icon" />
+                              </div>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* DOWNLOAD TAB */}
+                  {selectedPaper.activeTab === 'Download' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="tab-panel"
+                    >
+                      <h3 className="tab-heading">Download Options</h3>
+                      
+                      <div className="download-options-grid">
+                        <a href={getDownloadLink(selectedPaper.modelPaperLink)} download className="download-option-card primary">
+                          <div className="download-icon-box">
+                            <HiArrowDownTray />
+                          </div>
+                          <div className="download-info">
+                            <strong>Model Paper</strong>
+                            <span>High Quality • PDF</span>
+                          </div>
+                          <div className="download-size">~2.5 MB</div>
+                        </a>
+
+                        {selectedPaper.solutionLink && (
+                          <a href={getDownloadLink(selectedPaper.solutionLink)} download className="download-option-card">
+                            <div className="download-icon-box">
+                              <HiArrowDownTray />
+                            </div>
+                            <div className="download-info">
+                              <strong>Solutions</strong>
+                              <span>High Quality • PDF</span>
+                            </div>
+                            <div className="download-size">~1.8 MB</div>
+                          </a>
+                        )}
+
+                        {selectedPaper.oldPaperLink && (
+                          <a href={getDownloadLink(selectedPaper.oldPaperLink)} download className="download-option-card">
+                            <div className="download-icon-box">
+                              <HiArrowDownTray />
+                            </div>
+                            <div className="download-info">
+                              <strong>Old Papers</strong>
+                              <span>High Quality • PDF</span>
+                            </div>
+                            <div className="download-size">~2.1 MB</div>
+                          </a>
+                        )}
+                      </div>
+
+                      <div className="download-all-section">
+                        <button className="download-all-btn">
+                          <FaLayerGroup />
+                          <span>Download All as ZIP</span>
+                          <div className="size-badge">~6.5 MB</div>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* SHARE TAB */}
+                  {selectedPaper.activeTab === 'Share' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="tab-panel"
+                    >
+                      <h3 className="tab-heading">Share Resource</h3>
+                      
+                      <div className="share-qr-section">
+                        <div className="qr-code-box">
+                          <QRCodeSVG value={getPaperShareUrl(selectedPaper)} size={144} level="M" includeMargin />
+                          <p>Scan to open on mobile</p>
+                        </div>
+                      </div>
+
+                      <div className="share-link-box">
+                        <input 
+                          type="text" 
+                            value={getPaperShareUrl(selectedPaper)}
+                          readOnly
+                          className="share-link-input"
+                        />
+                        <button className="copy-link-btn" onClick={() => handleCopyLink(selectedPaper)}>
+                          <HiClipboard />
+                        </button>
+                      </div>
+
+                      <div className="share-social-grid">
+                          <button className="social-btn whatsapp" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(getPaperShareUrl(selectedPaper))}`, '_blank', 'noopener,noreferrer')}>
+                          <HiShare /> WhatsApp
+                        </button>
+                          <button className="social-btn telegram" onClick={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(getPaperShareUrl(selectedPaper))}`, '_blank', 'noopener,noreferrer')}>
+                          <HiShare /> Telegram
+                        </button>
+                          <button className="social-btn email" onClick={() => { window.location.href = `mailto:?subject=${encodeURIComponent(selectedPaper.title)}&body=${encodeURIComponent(getPaperShareUrl(selectedPaper))}`; }}>
+                          <HiShare /> Email
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* RELATED TAB */}
+                  {selectedPaper.activeTab === 'Related' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="tab-panel"
+                    >
+                      <h3 className="tab-heading">Related Papers</h3>
+                      
+                      <div className="related-papers-list">
+                        {papers
+                          .filter(p => p.semester === selectedPaper.semester && p.id !== selectedPaper.id)
+                          .slice(0, 5)
+                          .map(relatedPaper => (
+                            <button
+                              key={relatedPaper.id}
+                              className="related-paper-item"
+                              onClick={() => setSelectedPaper(relatedPaper)}
+                            >
+                              <div className="related-icon">
+                                <FaFilePdf />
+                              </div>
+                              <div className="related-info">
+                                <strong>{relatedPaper.title}</strong>
+                                <span>{relatedPaper.code}</span>
+                              </div>
+                              <HiChevronRight />
+                            </button>
+                          ))}
+                      </div>
+
+                      <div className="explore-more-box">
+                        <FaBolt />
+                        <p>Explore {papers.filter(p => p.semester === selectedPaper.semester).length} more papers in Sem {selectedPaper.semester}</p>
+                        <button className="explore-btn" onClick={handleCloseHub}>
+                          View All
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              </div>
+
+              <div className="drawer-footer-note">
+                <HiCheck /> Secure cloud delivery • Verified content
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+        <AnimatePresence>
+          {showScrollTop && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              onClick={scrollToTop}
+              style={{
+                position: 'fixed',
+                bottom: '30px',
+                right: '30px',
+                width: '50px',
+                height: '50px',
+                borderRadius: '50%',
+                background: '#6366F1',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 10px 30px rgba(99, 102, 241, 0.4)',
+                zIndex: 100,
+                fontSize: '1.5rem'
+              }}
+              whileHover={{ scale: 1.1, backgroundColor: '#4F46E5' }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <HiArrowUp />
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+      {/* NEW: Scroll Progress Indicator */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: `${scrollProgress}%`,
+        height: '4px',
+        background: 'linear-gradient(90deg, #6366F1, #8B5CF6, #EC4899)',
+        zIndex: 9999,
+        transition: 'width 0.1s ease',
+        boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)'
+      }} />
+
+      {/* NEW: Toast Notification System */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -50, x: '-50%' }}
+            style={{
+              position: 'fixed',
+              top: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: toast.type === 'success' ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #EF4444, #DC2626)',
+              color: 'white',
+              padding: '15px 30px',
+              borderRadius: '50px',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+              zIndex: 10000,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              fontWeight: 700,
+              fontSize: '0.95rem',
+              border: '2px solid rgba(255, 255, 255, 0.2)'
+            }}
+          >
+            {toast.type === 'success' ? <HiCheck size={20} /> : <HiXMark size={20} />}
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* NEW: Keyboard Shortcuts Hint */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.7 }}
+        whileHover={{ opacity: 1, scale: 1.05 }}
+        style={{
+          position: 'fixed',
+          bottom: '100px',
+          right: '30px',
+          background: 'rgba(15, 23, 42, 0.9)',
+          backdropFilter: 'blur(12px)',
+          padding: '12px 18px',
+          borderRadius: '15px',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          fontSize: '0.75rem',
+          color: 'rgba(255, 255, 255, 0.7)',
+          zIndex: 99,
+          display: 'none'
+        }}
+        className="keyboard-hints"
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div><span style={{ background: 'rgba(99, 102, 241, 0.2)', padding: '2px 6px', borderRadius: '4px', marginRight: '8px' }}>⌘K</span>Search</div>
+          <div><span style={{ background: 'rgba(99, 102, 241, 0.2)', padding: '2px 6px', borderRadius: '4px', marginRight: '8px' }}>⌘B</span>Bookmarks</div>
+          <div><span style={{ background: 'rgba(99, 102, 241, 0.2)', padding: '2px 6px', borderRadius: '4px', marginRight: '8px' }}>ESC</span>Close</div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default ModelPapers;

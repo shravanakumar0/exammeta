@@ -1,0 +1,582 @@
+:root {
+  color-scheme: light;
+  --exammeta-ink: #182230;
+  --exammeta-muted: #5e6b7c;
+  --exammeta-line: #e2e8f0;
+  --exammeta-paper: #ffffff;
+  --exammeta-canvas: #f6f8fb;
+  --exammeta-accent: #315ee8;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--exammeta-canvas);
+  color: var(--exammeta-ink);
+}
+
+body {
+  color-scheme: light;
+}
+
+.home-extreme-root {
+  background: var(--exammeta-canvas) !important;
+  color: var(--exammeta-ink) !important;
+}
+
+.home-background-shapes,
+.geo-shape {
+  display: none !important;
+}
+
+.bento-hero-title,
+.bento-card-body h3 {
+  color: var(--exammeta-ink) !important;
+}
+
+.bento-hero-subtitle,
+.bento-card-body p {
+  color: var(--exammeta-muted) !important;
+}
+
+.hero-badge-capsule,
+.stat-pill,
+.category-nav-island,
+.trending-search-bar,
+.bento-card {
+  color: var(--exammeta-ink) !important;
+  background: #fff !important;
+  border: 1px solid var(--exammeta-line) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.055) !important;
+}
+
+.stat-pill,
+.stat-pill strong,
+.bento-tag,
+.nav-scroll-wrapper button {
+  color: #344256 !important;
+}
+
+.bento-card-glow {
+  display: none !important;
+}
+
+.bento-scheme-btn,
+.bento-pill-link {
+  color: #244bc2 !important;
+  background: #edf2ff !important;
+  border-color: #d5defc !important;
+}
+
+.bento-scheme-btn.active {
+  color: #fff !important;
+  background: var(--exammeta-accent) !important;
+}
+
+.bento-arrow-link,
+.bento-link-group a {
+  color: #244bc2 !important;
+}
+
+.home-mrq-wrapper,
+.home-hackathon-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.study-feature-section,
+.study-planner-promo {
+  color: var(--exammeta-ink) !important;
+  background: var(--exammeta-paper) !important;
+  border: 1px solid var(--exammeta-line) !important;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.055) !important;
+}
+
+.study-feature-heading h2,
+.study-question-columns h3,
+.study-resource-copy h4,
+.hackathon-event-card h3,
+.hackathon-platform-name {
+  color: var(--exammeta-ink) !important;
+}
+
+.study-feature-heading p,
+.study-resource-note,
+.hackathon-source-note,
+.study-resource-copy p,
+.study-resource-subject,
+.hackathon-organizer,
+.hackathon-date,
+.hackathon-event-card small,
+.hackathon-platform-description {
+  color: var(--exammeta-muted) !important;
+}
+
+.study-feature-eyebrow,
+.study-resource-kicker {
+  color: var(--exammeta-accent) !important;
+}
+
+.study-resource-card,
+.hackathon-event-card,
+.hackathon-platform-card {
+  color: var(--exammeta-ink) !important;
+  background: #fff !important;
+  border-color: var(--exammeta-line) !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.study-resource-filters label,
+.hackathon-region {
+  color: #344256 !important;
+}
+
+.study-resource-filters select,
+.hackathon-region select,
+.hackathon-search,
+.hackathon-search input {
+  color: var(--exammeta-ink) !important;
+  background: #fff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.hackathon-search-button {
+  color: #fff !important;
+  background: var(--exammeta-accent) !important;
+}
+
+.hackathon-search-button:hover,
+.hackathon-search-button:focus-visible {
+  background: #244bc2 !important;
+}
+
+.hackathon-event-meta span {
+  color: #244bc2 !important;
+  background: #edf2ff !important;
+}
+
+.hackathon-event-actions a,
+.study-resource-link,
+.study-resource-note a {
+  color: #244bc2 !important;
+}
+
+.hackathon-state {
+  color: #344256 !important;
+}
+
+.hackathon-state.error {
+  color: #b42318 !important;
+}
+
+.opportunity-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.25rem 0;
+}
+
+.opportunity-tabs button {
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #fff;
+  color: #344256;
+  padding: 0.65rem 1rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.opportunity-tabs button.active {
+  color: #fff;
+  border-color: var(--exammeta-accent);
+  background: var(--exammeta-accent);
+}
+
+.study-planner-promo {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  max-width: 1180px;
+  margin: 1.5rem auto 3rem;
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+  border-radius: 22px;
+}
+
+.study-planner-promo h2 {
+  margin: 0.5rem 0;
+  color: var(--exammeta-ink);
+  font-size: clamp(1.35rem, 3vw, 1.9rem);
+}
+
+.study-planner-promo p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--exammeta-muted);
+  line-height: 1.65;
+}
+
+.study-planner-promo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 0 0 auto;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  background: var(--exammeta-accent);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Keep the existing authenticated planner and its Firebase-backed data, while
+   giving its existing controls and task cards the same light visual treatment. */
+.study-planner {
+  min-height: 100vh;
+  background: var(--exammeta-canvas) !important;
+  color: var(--exammeta-ink) !important;
+  padding: 2rem 1rem !important;
+}
+
+.study-planner .header,
+.study-planner .task-form,
+.study-planner .filters,
+.study-planner .task-box {
+  color: var(--exammeta-ink) !important;
+  background: #fff !important;
+  border: 1px solid var(--exammeta-line);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+}
+
+.study-planner .task-box span,
+.study-planner .header h1 {
+  color: var(--exammeta-ink) !important;
+}
+
+.study-planner .task-box.completed {
+  background: #eef4ff !important;
+  color: var(--exammeta-ink) !important;
+}
+
+.study-planner .progress-bar {
+  background: #e7edf5 !important;
+}
+
+.study-planner .progress-bar .progress {
+  color: #fff !important;
+}
+
+.study-planner-hero,
+.ai-plan-form,
+.ai-generated-plan {
+  width: min(100%, 1050px);
+  margin: 0 auto 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--exammeta-line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 26px rgba(15, 23, 42, 0.055);
+}
+
+.study-planner-hero {
+  text-align: center;
+}
+
+.study-planner-hero h1,
+.ai-plan-heading h2 {
+  margin: 0.5rem 0;
+  color: var(--exammeta-ink);
+}
+
+.study-planner-hero p,
+.ai-plan-heading p {
+  max-width: 760px;
+  margin: 0 auto;
+  color: var(--exammeta-muted);
+  line-height: 1.65;
+}
+
+.ai-plan-subjects,
+.ai-plan-fields label {
+  display: grid;
+  gap: 0.5rem;
+  color: #344256;
+  font-weight: 700;
+}
+
+.ai-plan-subjects span {
+  color: var(--exammeta-muted);
+  font-size: 0.83rem;
+  font-weight: 400;
+}
+
+.ai-plan-form textarea,
+.ai-plan-fields input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 11px;
+  color: var(--exammeta-ink);
+  background: #fff;
+  font: inherit;
+}
+
+.ai-plan-form textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.ai-plan-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.1rem 0;
+}
+
+.ai-plan-fields label svg {
+  color: var(--exammeta-accent);
+}
+
+.ai-plan-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.75rem 1.1rem;
+  border: 0;
+  border-radius: 11px;
+  color: #fff;
+  background: var(--exammeta-accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ai-plan-submit:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.ai-plan-note {
+  margin: 0.8rem 0 0;
+  color: var(--exammeta-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.ai-plan-error {
+  margin: 0.8rem 0 0;
+  color: #b42318;
+  font-weight: 600;
+}
+
+.ai-plan-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.ai-plan-heading p {
+  margin: 0;
+}
+
+.ai-plan-exam-date {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  background: #edf2ff;
+  color: #344256;
+}
+
+.ai-plan-exam-date strong {
+  color: #244bc2;
+}
+
+.ai-plan-day-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.ai-plan-day {
+  padding: 1rem;
+  border: 1px solid var(--exammeta-line);
+  border-radius: 15px;
+  background: #fbfcfe;
+}
+
+.ai-plan-day > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.ai-plan-day > header span {
+  color: var(--exammeta-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.ai-plan-day h3 {
+  margin: 0.2rem 0 0;
+  color: var(--exammeta-ink);
+}
+
+.ai-plan-day > header small,
+.ai-plan-session small {
+  color: var(--exammeta-muted);
+}
+
+.ai-plan-session-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.ai-plan-session {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--exammeta-line);
+  border-radius: 11px;
+  background: #fff;
+}
+
+.ai-plan-session > div {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.ai-plan-session strong {
+  color: var(--exammeta-ink);
+}
+
+.ai-plan-session span {
+  color: #344256;
+  font-weight: 600;
+}
+
+.ai-plan-session p {
+  margin: 0;
+  color: var(--exammeta-muted);
+  line-height: 1.5;
+}
+
+.ai-plan-session b {
+  flex: 0 0 auto;
+  color: #244bc2;
+  white-space: nowrap;
+}
+
+.nav-portal-layer.layer-scrolled,
+.nav-ticker-bar,
+.nav-main-island {
+  color: var(--exammeta-ink) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: var(--exammeta-line) !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.07) !important;
+}
+
+.nav-ticker-bar {
+  color: #526174 !important;
+}
+
+.nav-ticker-bar .ticker-badge {
+  color: var(--exammeta-accent) !important;
+}
+
+.nav-brand-title,
+.nav-link-item,
+.nav-login-btn {
+  color: var(--exammeta-ink) !important;
+}
+
+.nav-dropdown-menu,
+.mobile-menu-container,
+.mobile-submenu-container {
+  background: #fff !important;
+  border: 1px solid var(--exammeta-line) !important;
+}
+
+.nav-island-container {
+  color: var(--exammeta-ink) !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  border: 1px solid var(--exammeta-line) !important;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.14) !important;
+}
+
+.nav-island-item,
+.nav-island-item span,
+.nav-island-item.active {
+  color: #344256 !important;
+}
+
+.nav-island-item.active {
+  background: #edf2ff !important;
+}
+
+.nav-dropdown-item,
+.mobile-menu-row,
+.mobile-submenu-item {
+  color: var(--exammeta-ink) !important;
+}
+
+.mobile-submenu-toggle {
+  color: var(--exammeta-ink) !important;
+}
+
+.footer-modern {
+  color: #526174 !important;
+  background: #fff !important;
+  border-top: 1px solid var(--exammeta-line) !important;
+}
+
+.footer-modern h3,
+.footer-modern h4,
+.footer-modern .brand-info h3,
+.footer-modern .footer-title-modern {
+  color: var(--exammeta-ink) !important;
+}
+
+.footer-modern a,
+.footer-modern p {
+  color: #526174;
+}
+
+@media (max-width: 720px) {
+  .ai-plan-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-plan-heading {
+    flex-direction: column;
+  }
+
+  .ai-plan-session {
+    flex-direction: column;
+  }
+
+  .study-planner-promo {
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 1rem;
+  }
+
+  .study-planner-promo-link {
+    width: 100%;
+    justify-content: center;
+  }
+}

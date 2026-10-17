@@ -1,0 +1,20 @@
+{
+  "branches": {
+    "CSE": [
+      {
+        "subCode": "CS101",
+        "subName": "Programming in C"
+      },
+      {
+        "subCode": "CS102",
+        "subName": "Data Structures"
+      }
+    ],
+    "ECE": [
+      {
+        "subCode": "EC101",
+        "subName": "Digital Electronics"
+      }
+    ]
+  }
+}

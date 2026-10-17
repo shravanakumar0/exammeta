@@ -1,0 +1,3 @@
+/api/gemini /.netlify/functions/gemini 200
+/api/hackathons /.netlify/functions/hackathons 200
+/*    /index.html   200
