@@ -1,97 +1,140 @@
-const SEARCH_MODEL = "gemini-3.8-flash";
+// Hackathon Finder integration — fetches live hackathon listings from Devpost and Unstop
+// Inspired by: https://github.com/dev-shetty/hackathon-finder (Next.js app using same data sources)
+// ExamMeta implements equivalent functionality natively in React without requiring a separate Next.js server.
 
-const isSafeHttpUrl = value => {
-  try {
-    const parsed = new URL(value);
-    return parsed.protocol === "https:";
-  } catch {
-    return false;
-  }
+const KARNATAKA = /karnataka|bengaluru|bangalore|mysuru|mysore|mangaluru|mangalore|manipal|hubballi|hubli|belagavi|belgaum|dharwad/i;
+
+const isHttpsUrl = value => {
+  try { return new URL(value).protocol === "https:"; } catch { return false; }
 };
 
-async function handleHackathonsRequest(body = {}, apiKey = process.env.GEMINI_API_KEY) {
-  const type = body.type === "internships" ? "internships" : "hackathons";
-  const resultKey = type === "internships" ? "internships" : "events";
-  if (!apiKey) {
-    return { status: 503, body: { error: `Live ${type} search is not configured. Set a rotated GEMINI_API_KEY in the server environment.` } };
-  }
-  const region = body.region === "Karnataka" ? "Karnataka, India" : "India";
-  const topic = String(body.query || "").trim().slice(0, 100);
-  const today = new Date().toISOString().slice(0, 10);
-  const prompt = type === "internships"
-    ? `Search Google for real, currently open student internships in ${region}${topic ? ` related to ${topic}` : ""}. Today is ${today}. Use only official employer career pages or authorized application pages. Return only postings with a verifiable active application page and explicit official confirmation that applying is free with no application or registration fee. Do not infer that an internship is free because no fee was mentioned. Exclude expired, sample, demo, and unverified listings. Do not guess dates or details. Do not conflate application fees with whether the internship pays a stipend. Return ONLY a JSON array (no markdown), each item with: title, organizer (employer), location, mode (In-person, Online, Hybrid, or empty), domain, applicationDeadline (YYYY-MM-DD or empty), applicationFee (exactly "No application fee" only when explicitly verified by the cited page), applicationUrl (official HTTPS application page), officialUrl (official HTTPS source page). Limit to 12.`
-    : `Search Google for real, upcoming hackathons in ${region}${topic ? ` related to ${topic}` : ""}. Today is ${today}. Return ONLY events that are confirmed by an official organizer or registration page, have a future start date, and are not demos, sample listings, cancelled events, or already-ended events. Include events even if registration has not opened yet, but then set registrationUrl to an empty string. Do not guess missing values. Return ONLY a JSON array (no markdown), each item with: title, organizer, startDate (YYYY-MM-DD), endDate (YYYY-MM-DD or empty), location (city/state or Online), mode (In-person, Online, or Hybrid), eventUrl (official event page URL), registrationUrl (official registration URL or empty). If you cannot verify the official page and future date, omit the event. Limit to 12 events.`;
+const cleanDate = value => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
+};
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 45000);
+const safeImageUrl = value => {
+  if (!value || typeof value !== "string") return "";
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${SEARCH_MODEL}:generateContent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        tools: [{ google_search: {} }],
-        generationConfig: { temperature: 0.1, responseMimeType: "application/json" },
-      }),
-      signal: controller.signal,
-    });
-    let data;
-    try {
-      data = await response.json();
-    } catch {
-      return { status: 502, body: { error: "Google-grounded search returned an unreadable response. Please retry." } };
-    }
-    if (!response.ok) {
-      const detail = String(data?.error?.message || "");
-      const invalidKey = [401, 403].includes(response.status) || /api.?key.*(invalid|not valid)|API_KEY_INVALID|permission denied/i.test(detail);
-      if (invalidKey) {
-        return { status: 502, body: { error: "Gemini rejected the server API key. Check GEMINI_API_KEY and Gemini API access for its Google project." } };
-      }
-      if (response.status === 429) {
-        return { status: 429, body: { error: "Live hackathon search quota is exhausted or rate-limited. Check Google AI Studio and Google Search grounding usage, then retry." } };
-      }
-      return { status: 502, body: { error: detail || `Google-grounded event search failed (HTTP ${response.status}).` } };
-    }
-    const candidate = data?.candidates?.[0];
-    const text = candidate?.content?.parts?.map(part => part.text || "").join("\n").trim() || "[]";
-    const citations = candidate?.groundingMetadata?.groundingChunks || [];
-    const sourceUrls = new Set(citations.map(chunk => chunk.web?.uri).filter(isSafeHttpUrl));
-    const parsed = JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, ""));
-    if (!Array.isArray(parsed)) throw new Error("Expected a list of results.");
+    const url = new URL(value.startsWith("//") ? `https:${value}` : value);
+    return url.protocol === "https:" ? url.href : "";
+  } catch { return ""; }
+};
 
-    if (type === "internships") {
-      const internships = parsed.filter(item => {
-        const officialUrl = String(item.officialUrl || "");
-        const applicationUrl = String(item.applicationUrl || "");
-        const deadline = String(item.applicationDeadline || "");
-        const validDeadline = !deadline || (/^\d{4}-\d{2}-\d{2}$/.test(deadline) && deadline >= today);
-        const title = String(item.title || "");
-        return Boolean(title && item.organizer && String(item.applicationFee || "").toLowerCase() === "no application fee" &&
-          !/(demo|sample|test|expired|closed)/i.test(`${title} ${deadline}`) &&
-          isSafeHttpUrl(officialUrl) && sourceUrls.has(officialUrl) && isSafeHttpUrl(applicationUrl) && sourceUrls.has(applicationUrl) && validDeadline);
-      }).slice(0, 12);
-      const sources = citations.map(chunk => chunk.web).filter(source => isSafeHttpUrl(source?.uri));
-      return { status: 200, body: { internships, sources, searchedAt: new Date().toISOString() } };
-    }
+async function fetchJson(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 14000);
+  try {
+    const response = await fetch(url, { headers: { Accept: "application/json" }, signal: controller.signal });
+    if (!response.ok) throw new Error(`Source returned HTTP ${response.status}`);
+    return await response.json();
+  } finally { clearTimeout(timer); }
+}
 
-    const events = parsed.filter(event => {
-      const startDate = /^\d{4}-\d{2}-\d{2}$/.test(event.startDate || "") ? event.startDate : "";
-      const eventUrl = String(event.eventUrl || "");
-      const registrationUrl = String(event.registrationUrl || "");
-      const title = String(event.title || "");
-      return Boolean(
-        title && !/(demo|sample|test event|cancelled|canceled)/i.test(title) &&
-        startDate > today && isSafeHttpUrl(eventUrl) && sourceUrls.has(eventUrl) &&
-        (!registrationUrl || (isSafeHttpUrl(registrationUrl) && sourceUrls.has(registrationUrl)))
-      );
-    }).slice(0, 12);
-    const sources = citations.map(chunk => chunk.web).filter(source => isSafeHttpUrl(source?.uri));
-    return { status: 200, body: { [resultKey]: events, sources, searchedAt: new Date().toISOString() } };
-  } catch (error) {
-    return { status: 502, body: { error: error.name === "AbortError" ? "Event search timed out. Try again." : "Could not verify current event listings. Try again later." } };
-  } finally {
-    clearTimeout(timeout);
+async function handleHackathonsRequest(body = {}) {
+  // Fetch 4 pages from each source for richer results
+  const pages = [1, 2, 3, 4];
+  const requests = pages.flatMap(page => [
+    { provider: "Devpost", promise: fetchJson(`https://devpost.com/api/hackathons?page=${page}`) },
+    { provider: "Unstop", promise: fetchJson(`https://unstop.com/api/public/opportunity/search-result?opportunity=hackathons&page=${page}&per_page=15&oppstatus=open&quickApply=true`) },
+  ]);
+
+  const results = await Promise.allSettled(requests.map(r => r.promise));
+  const fulfilled = results
+    .map((result, index) => ({ result, provider: requests[index].provider }))
+    .filter(({ result }) => result.status === "fulfilled");
+
+  if (!fulfilled.length) {
+    return {
+      status: 502,
+      body: { error: "Devpost and Unstop are currently unavailable. Please try again in a few minutes." },
+    };
   }
+
+  const records = fulfilled.flatMap(({ result, provider }) => {
+    const data = result.value;
+    if (provider === "Devpost") {
+      return (data.hackathons || []).map(item => ({ item, provider: "Devpost" }));
+    }
+    return (data.data?.data || []).map(item => ({ item, provider: "Unstop" }));
+  });
+
+  const today = new Date().toISOString().slice(0, 10);
+  const region = body.region === "Karnataka" ? "Karnataka" : "India";
+  const query = String(body.query || "").trim().toLowerCase();
+  const seen = new Set();
+
+  const events = records.map(({ item, provider }) => {
+    const isDevpost = provider === "Devpost";
+
+    const location = String(
+      isDevpost
+        ? item.displayed_location?.location || "Online"
+        : item.region || "Online"
+    );
+
+    const dateRange = String(item.submission_period_dates || "").split(" - ");
+    const startDate = cleanDate(isDevpost ? dateRange[0] : item.start_date || item.regnRequirements?.start_regn_dt);
+    const endDate = cleanDate(isDevpost ? dateRange[1] : item.end_date);
+
+    const rawUrl = isDevpost ? item.url : `https://unstop.com/${item.public_url || ""}`;
+    const eventUrl = isDevpost && rawUrl && !rawUrl.startsWith("http")
+      ? `https://devpost.com${rawUrl}`
+      : rawUrl;
+
+    const tags = isDevpost
+      ? (item.themes || []).map(t => t.name).filter(Boolean)
+      : (item.filters || []).map(f => f.name).filter(Boolean);
+
+    const prize = isDevpost
+      ? String(item.prize_amount || "")
+      : (item.prizes || []).map(p => p.cash).filter(Boolean).join(" / ");
+
+    const registrationCount = isDevpost
+      ? Number(item.registrations_count || 0)
+      : Number(item.registerCount || 0);
+
+    // Thumbnail image (new feature — ported from hackathon-finder)
+    const thumbnailUrl = isDevpost
+      ? safeImageUrl(item.thumbnail_url)
+      : safeImageUrl(item.logo?.original_image || item.logo?.image || "");
+
+    return {
+      title: String(item.title || ""),
+      organizer: isDevpost ? item.organization_name || "" : item.organisation?.name || "",
+      location,
+      startDate,
+      endDate,
+      eventUrl,
+      registrationUrl: eventUrl,
+      mode: /online|remote/i.test(location) ? "Online" : "In-person",
+      provider,
+      tags,
+      prize,
+      registrationCount,
+      thumbnailUrl,
+    };
+  }).filter(event => {
+    if (!event.title || !event.startDate || event.startDate < today || !isHttpsUrl(event.eventUrl)) return false;
+    if (region === "Karnataka" && !KARNATAKA.test(event.location)) return false;
+    if (query && !`${event.title} ${event.organizer} ${event.location}`.toLowerCase().includes(query)) return false;
+    const key = event.eventUrl.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return {
+    status: 200,
+    body: {
+      events: events.slice(0, 40),
+      sources: [
+        { title: "Devpost", uri: "https://devpost.com/hackathons" },
+        { title: "Unstop", uri: "https://unstop.com/hackathons" },
+      ],
+      searchedAt: new Date().toISOString(),
+    },
+  };
 }
 
 module.exports = { handleHackathonsRequest };

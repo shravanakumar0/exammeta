@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { readApiResponse } from "../api/gemini";
 import { database, auth } from "../firebase";
 import { ref, push, set, onValue, off } from "firebase/database";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, useLocation } from "react-router-dom";
 import {
   FaLaptopCode,
-  FaRobot,
   FaMicrochip,
   FaLightbulb,
   FaCheckCircle,
   FaSpinner,
   FaStar,
   FaSearch,
-  FaMagic,
   FaPaperPlane
 } from "react-icons/fa";
 import ProjectReviews from "./ProjectReviews";
@@ -21,8 +17,6 @@ import "./ProjectModern.css"; // CHANGED: Modern CSS
 
 
 const ProjectEnquiry = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
 
   // ------------------ STATES ------------------
   const [formData, setFormData] = useState({
@@ -33,9 +27,7 @@ const ProjectEnquiry = () => {
     message: "",
   });
   const [loading, setLoading] = useState(false);
-  const [generating, setGenerating] = useState(false);
   const [success, setSuccess] = useState("");
-  const [aiIdeas, setAiIdeas] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [ideaSuggestion, setIdeaSuggestion] = useState("");
   const [submittedProjects, setSubmittedProjects] = useState({});
@@ -54,7 +46,7 @@ const ProjectEnquiry = () => {
       color: "#2563eb",
     },
     {
-      icon: <FaRobot />,
+      icon: <FaMicrochip />,
       title: "ML / AI",
       desc: "Python, TensorFlow, Data Science",
       color: "#4f46e5",
@@ -73,22 +65,17 @@ const ProjectEnquiry = () => {
     },
   ];
 
-  // ------------------ AUTH CHECK ------------------
+  // This page remains accessible without a login screen. Existing Firebase
+  // records are shown only when an already-authenticated Firebase user exists.
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        navigate("/login", { state: { from: location }, replace: true });
-      } else {
-        setIsAdmin(ADMIN_UIDS.includes(user.uid));
-      }
-    });
+    const unsubscribe = auth.onAuthStateChanged(user => setIsAdmin(Boolean(user && ADMIN_UIDS.includes(user.uid))));
     return () => unsubscribe();
-  }, [navigate, location]);
+  }, []);
 
   // ------------------ DATA FETCHING ------------------
   useEffect(() => {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) return undefined;
 
     const refPath = isAdmin ? "project_enquiries" : `project_enquiries/${user.uid}`;
     const dataRef = ref(database, refPath);
@@ -139,7 +126,10 @@ const ProjectEnquiry = () => {
     }
 
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+      alert("Project requests are not available while the site is in login-free mode.");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -161,7 +151,6 @@ const ProjectEnquiry = () => {
         projectType: "",
         message: ""
       });
-      setAiIdeas([]);
       setFavorites([]);
 
       setTimeout(() => setSuccess(""), 5000);
@@ -171,55 +160,6 @@ const ProjectEnquiry = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // ------------------ AI LOGIC ------------------
-  const generateAiIdeas = async () => {
-    if (!formData.projectType) {
-      alert("Select a Project Type first to generate ideas.");
-      return;
-    }
-
-    setGenerating(true);
-    try {
-      const response = await fetch("/api/gemini", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "project-ideas",
-          projectType: formData.projectType,
-          userMessage: formData.message,
-        }),
-      });
-      const data = await readApiResponse(response, "AI request failed.");
-      const text = data.answer || "";
-      const lines = text.split(/\n/).filter(line => line.trim().length > 10);
-      const ideas = lines.slice(0, 3).map(line => ({
-        text: line.replace(/^[-*•0-9.]+/, "").trim(),
-        favorite: false
-      }));
-
-      if (ideas.length === 0) {
-        setAiIdeas([{ text: "No ideas generated. Please try again with more specific details.", favorite: false }]);
-      } else {
-        setAiIdeas(ideas);
-      }
-    } catch (err) {
-      console.error("AI generation error:", err);
-      setAiIdeas([{
-        text: "AI service is currently busy. Please try again in a moment.",
-        favorite: false
-      }]);
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  const toggleFavorite = (index) => {
-    const updatedIdeas = [...aiIdeas];
-    updatedIdeas[index].favorite = !updatedIdeas[index].favorite;
-    setAiIdeas(updatedIdeas);
-    setFavorites(updatedIdeas.filter(idea => idea.favorite));
   };
 
   const toggleStep = async (userId, projectId, step) => {
@@ -466,70 +406,6 @@ const ProjectEnquiry = () => {
                   rows="4"
                 ></textarea>
               </div>
-
-              {/* AI Generator Section */}
-              <AnimatePresence>
-                {formData.projectType && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="ai-section"
-                  >
-                    <div className="ai-header">
-                      <FaMagic className="magic-icon" />
-                      <span>Need Inspiration? Let AI Help</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={generateAiIdeas}
-                      className="ai-btn"
-                      disabled={generating}
-                    >
-                      {generating ? (
-                        <>
-                          <FaSpinner className="spin" />
-                          Generating Ideas...
-                        </>
-                      ) : (
-                        "Generate Project Ideas"
-                      )}
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* AI Results */}
-              <AnimatePresence>
-                {aiIdeas.length > 0 && (
-                  <motion.div
-                    className="ai-results-box"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                  >
-                    <div className="ai-results-header">
-                      <span>AI Generated Ideas</span>
-                      {favorites.length > 0 && (
-                        <span className="favorites-count">
-                          {favorites.length} favorited
-                        </span>
-                      )}
-                    </div>
-                    {aiIdeas.map((idea, i) => (
-                      <div
-                        key={i}
-                        className={`ai-result-row ${idea.favorite ? "fav" : ""}`}
-                        onClick={() => toggleFavorite(i)}
-                        title="Click to favorite"
-                      >
-                        <FaStar className="star-icon" />
-                        <span className="idea-text">{idea.text}</span>
-                      </div>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
 
               <motion.button
                 type="submit"

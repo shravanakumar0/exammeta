@@ -4,3 +4,19 @@
 
 [functions]
   node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/hackathons"
+  to = "/.netlify/functions/hackathons"
+  status = 200
+
+[[redirects]]
+  from = "/api/internships"
+  to = "/.netlify/functions/internships"
+  status = 200
+
+[[redirects]]
+  from = "/api/gemini"
+  to = "/.netlify/functions/gemini"
+  status = 200
+

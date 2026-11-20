@@ -39,7 +39,7 @@ const ProjectReviews = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!auth.currentUser) return alert("❌ Please login to submit a review.");
+    if (!auth.currentUser) return alert("❌ Reviews are unavailable while ExamMeta runs without accounts.");
     if (!reviewData.name || !reviewData.project || !reviewData.review || reviewData.rating === 0)
       return alert("⚠️ Fill all fields and rate your experience.");
 

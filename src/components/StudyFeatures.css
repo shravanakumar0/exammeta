@@ -422,3 +422,27 @@
     margin: 2rem 1rem;
   }
 }
+
+.hackathon-extra-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: .8rem;
+  margin: -.25rem 0 1.2rem;
+}
+.hackathon-extra-filters > label:not(.hackathon-online-filter) {
+  display: grid;
+  gap: .35rem;
+  color: #cbd5e1;
+  font-size: .82rem;
+  font-weight: 700;
+}
+.hackathon-extra-filters select {
+  min-height: 40px;
+  padding: .45rem 2rem .45rem .7rem;
+  color: #f8fafc;
+  background: #111c31;
+  border: 1px solid rgba(148,163,184,.35);
+  border-radius: 10px;
+}
+.hackathon-online-filter { display:flex; align-items:center; gap:.5rem; min-height:40px; color:#cbd5e1; }

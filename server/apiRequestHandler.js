@@ -2,7 +2,8 @@ require("dotenv").config();
 
 const { handleGeminiRequest } = require("./geminiHandler");
 const { handleHackathonsRequest } = require("./hackathonsHandler");
-const API_PATHS = new Set(["/api/gemini", "/api/hackathons"]);
+const { handleInternshipsRequest } = require("./internshipsHandler");
+const API_PATHS = new Set(["/api/gemini", "/api/hackathons", "/api/internships"]);
 const MAX_BODY_LENGTH = 500000;
 
 function handleApiRequest(request, response) {
@@ -27,7 +28,9 @@ function handleApiRequest(request, response) {
       const body = JSON.parse(raw);
       const result = path === "/api/hackathons"
         ? await handleHackathonsRequest(body)
-        : await handleGeminiRequest(body);
+        : path === "/api/internships"
+          ? await handleInternshipsRequest(body)
+          : await handleGeminiRequest(body);
       response.writeHead(result.status).end(JSON.stringify(result.body));
     } catch {
       if (!response.headersSent) {

@@ -294,9 +294,8 @@ const CommentSection = () => {
       {showLoginPopup && (
         <div className="auth-modal">
           <div className="auth-box">
-            <h3>🔒 Login Required</h3>
-            <p>Please login to interact.</p>
-            <button onClick={() => window.location.href = '/login'}>Login Now</button>
+            <h3>🔒 Interaction unavailable</h3>
+            <p>Comments are currently read-only while ExamMeta runs without accounts.</p>
             <button className="close" onClick={() => setShowLoginPopup(false)}>Close</button>
           </div>
         </div>

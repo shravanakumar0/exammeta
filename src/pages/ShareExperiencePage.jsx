@@ -88,7 +88,7 @@ const ShareExperiencePage = () => {
     setLoading(true);
 
     if (!auth.currentUser) {
-      alert("Please login to submit.");
+      alert("Submitting experiences is unavailable while ExamMeta runs without accounts.");
       setLoading(false);
       return;
     }

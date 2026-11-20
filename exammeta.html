@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamMeta - VTU Student Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========================================
+           EXAMMETA - COMPLETE UI/UX DESIGN SYSTEM
+           Single-file HTML version
+           ======================================== */
+        :root {
+            --font-main: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --color-bg: #ffffff;
+            --color-bg-soft: #f8fafc;
+            --color-bg-card: #ffffff;
+            --color-surface: #f1f5f9;
+            --color-border: #e2e8f0;
+            --color-border-hover: #cbd5e1;
+            --primary-500: #8b5cf6;
+            --primary-600: #7c3aed;
+            --primary-light: #f3e8ff;
+            --accent-500: #f97316;
+            --accent-glow: rgba(249, 115, 22, 0.2);
+            --accent-light: #fff4e6;
+            --tertiary-500: #14b8a6;
+            --tertiary-light: #ccfbf1;
+            --success: #22c55e;
+            --warning: #eab308;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --text-heading: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --text-dim: #94a3b8;
+            --text-on-primary: #ffffff;
+            --space-0: 0;
+            --space-xs: 0.5rem;
+            --space-sm: 0.75rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --radius-full: 9999px;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.15);
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+            --navbar-height: 80px;
+            --max-width: 1320px;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+        body {
+            margin: 0;
+            font-family: var(--font-main);
+            font-size: 1rem;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            background-color: var(--color-bg);
+            color: var(--text-body);
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text-heading);
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.03em;
+        }
+        h1 { font-size: clamp(2.75rem, 5vw, 4rem); }
+        h2 { font-size: clamp(2rem, 4vw, 3rem); }
+        h3 { font-size: clamp(1.5rem, 3vw, 2.25rem); }
+        h4 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); }
+        p { margin-bottom: 1rem; color: var(--text-body); font-weight: 500; }
+        a { color: var(--primary-600); text-decoration: none; transition: color var(--transition-fast); }
+        a:hover { color: var(--accent-500); }
+        /* ===== Buttons ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            font-weight: 700;
+            border: none;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(139, 92, 246, 0.4);
+            filter: brightness(1.05);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-body);
+            border: 2px solid var(--color-border);
+        }
+        .btn-outline:hover {
+            background: var(--primary-500);
+            border-color: var(--primary-500);
+            color: #ffffff;
+        }
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent-500), #fb923c);
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
+        }
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(249, 115, 22, 0.4);
+            filter: brightness(1.05);
+        }
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            padding: 0.75rem 1.25rem;
+            font-weight: 600;
+        }
+        .btn-ghost:hover {
+            background: var(--color-surface);
+            color: var(--text-heading);
+            border-radius: var(--radius-md);
+        }
+        .btn-sm { padding: 0.625rem 1.25rem; font-size: 0.875rem; }
+        .btn-lg { padding: 1.125rem 2.5rem; font-size: 1.1rem; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        /* ===== Badges ===== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .badge-primary { background: var(--primary-light); color: var(--primary-600); border: 1px solid rgba(139, 92, 246, 0.2); }
+        .badge-accent { background: var(--accent-light); color: var(--accent-500); border: 1px solid rgba(249, 115, 22, 0.2); }
+        .badge-success { background: rgba(34, 197, 94, 0.1); color: var(--success); border: 1px solid rgba(34, 197, 94, 0.2); }
+        .badge-soft { background: var(--color-surface); color: var(--text-muted); border: 1px solid var(--color-border); }
+        /* ===== Cards ===== */
+        .card {
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            transition: all var(--transition-base);
+        }
+        .card:hover {
+            border-color: var(--color-border-hover);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .card-interactive { cursor: pointer; }
+        .card-interactive:hover { background: var(--color-bg-soft); border-color: var(--primary-500); box-shadow: var(--shadow-glow); }
+        .card-violet { border-top: 4px solid var(--primary-500); background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%); }
+        .card-orange { border-top: 4px solid var(--accent-500); background: linear-gradient(180deg, #ffffff 0%, #fff8f0 100%); }
+        .card-teal { border-top: 4px solid var(--tertiary-500); background: linear-gradient(180deg, #ffffff 0%, #f0fdff 100%); }
+        /* ===== Form Elements ===== */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            letter-spacing: 0.02em;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            background: #ffffff;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            color: var(--text-body);
+            transition: all var(--transition-fast);
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+        /* ===== Layout Utilities ===== */
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+        }
+        .page-content {
+            min-height: calc(100vh - var(--navbar-height));
+            padding: var(--space-3xl) 0;
+        }
+        .section { margin-bottom: var(--space-4xl); }
+        .section-header { margin-bottom: var(--space-2xl); text-align: center; }
+        .section-title {
+            font-size: 2.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+            max-width: 640px;
+            margin: 0 auto;
+            font-weight: 500;
+        }
+        /* ===== Gradient Text ===== */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        /* ===== Scrollbar ===== */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--color-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--color-surface); border-radius: var(--radius-full); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        /* ===== Loading ===== */
+        .app-loading {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: #ffffff;
+        }
+        .loading-spinner {
+            width: 56px; height: 56px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 2rem;
+        }
+        .loading-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        /* ===== Focus Styles ===== */
+        *:focus-visible { outline: 3px solid var(--primary-500); outline-offset: 3px; }
+        /* ===== Media Queries ===== */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 2rem; }
+            h3 { font-size: 1.5rem; }
+            .container { padding: 0 var(--space-md); }
+            .page-content { padding: var(--space-xl) 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+        }
+        button:focus-visible, a:focus-visible, input:focus-visible {
+            outline: 3px solid var(--primary-500);
+            outline-offset: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        // ========================================
+        // EXAMMETA - COMPLETE SINGLE-FILE APP
+        // ========================================
+
+        // Mock Data
+        const subjectsData = {
+            'first-year': {
+                1: [
+                    { name: 'Engineering Mathematics I', code: '18MAT11', credits: 4, info: 'Mathematics for engineers' },
+                    { name: 'Engineering Physics', code: '18PHY12', credits: 4, info: 'Applied physics concepts' },
+                    { name: 'Elements of Civil Engineering', code: '18CV13', credits: 3, info: 'Civil engineering basics' },
+                    { name: 'Elements of Mechanical Engineering', code: '18EME14', credits: 3, info: 'Mechanical engineering basics' },
+                    { name: 'Basic Electrical Engineering', code: '18ELE15', credits: 3, info: 'Electrical fundamentals' },
+                    { name: 'Engineering Chemistry', code: '18CHY16', credits: 2, info: 'Chemistry for engineers' }
+                ],
+                2: [
+                    { name: 'Engineering Mathematics II', code: '18MAT21', credits: 4, info: 'Advanced mathematics' },
+                    { name: 'Engineering Chemistry', code: '18CHY22', credits: 4, info: 'Chemical engineering basics' },
+                    { name: 'Computer Aided Engineering Drawing', code: '18CED13', credits: 3, info: 'CAD drawing' },
+                    { name: 'Basic Electronics', code: '18ELN14', credits: 3, info: 'Electronics fundamentals' },
+                    { name: 'C Programming', code: '18CPH15', credits: 3, info: 'C programming language' },
+                    { name: 'Environmental Studies', code: '18EVS16', credits: 2, info: 'Environmental science' }
+                ]
+            },
+            cse: {
+                3: [
+                    { name: 'Discrete Mathematics', code: '18MAT31', credits: 4, info: 'Graph theory, combinatorics, logic' },
+                    { name: 'Data Structures', code: '18CS32', credits: 4, info: 'Arrays, linked lists, trees, graphs' },
+                    { name: 'Object Oriented Programming', code: '18CS33', credits: 4, info: 'Java/C++ OOP concepts' },
+                    { name: 'Computer Organization', code: '18CS34', credits: 3, info: 'Computer architecture' },
+                    { name: 'Software Engineering', code: '18CS35', credits: 3, info: 'SDLC and methodologies' },
+                    { name: 'Analog and Digital Electronics', code: '18CS36', credits: 3, info: 'Digital electronics' }
+                ],
+                4: [
+                    { name: 'Database Management Systems', code: '18CS41', credits: 4, info: 'SQL, normalization, ER modeling' },
+                    { name: 'Operating Systems', code: '18CS42', credits: 4, info: 'Process, memory management' },
+                    { name: 'Computer Networks', code: '18CS43', credits: 4, info: 'OSI model, TCP/IP' },
+                    { name: 'Automata Theory', code: '18CS44', credits: 3, info: 'Formal languages' },
+                    { name: 'Microcontroller', code: '18CS45', credits: 3, info: 'Embedded systems' },
+                    { name: 'Unix Programming', code: '18CS46', credits: 2, info: 'Linux shell scripting' }
+                ],
+                5: [
+                    { name: 'Computer Graphics', code: '18CS51', credits: 4, info: '2D/3D graphics' },
+                    { name: 'Software Testing', code: '18CS52', credits: 4, info: 'Testing methodologies' },
+                    { name: 'Web Technologies', code: '18CS53', credits: 4, info: 'HTML, CSS, JavaScript, React' },
+                    { name: 'Artificial Intelligence', code: '18CS54', credits: 3, info: 'Machine learning basics' },
+                    { name: 'Compiler Design', code: '18CS55', credits: 3, info: 'Lexical analysis, parsing' },
+                    { name: 'System Software', code: '18CS56', credits: 3, info: 'Compilers, loaders' }
+                ]
+            }
+        };
+
+        const branches = {
+            'first-year': 'First Year',
+            cse: 'CSE Core',
+            ece: 'ECE Core'
+        };
+
+        const semesters = {
+            'first-year': [1, 2],
+            cse: [3, 4, 5],
+            ece: [3, 4, 5]
+        };
+
+        // State
+        let currentRoute = '/';
+        let isAuthenticated = false;
+        let currentUser = null;
+
+        // DOM Elements
+        const app = document.getElementById('app');
+
+        // Router
+        function router() {
+            const path = window.location.pathname;
+            currentRoute = path;
+
+            if (path === '/login') {
+                if (isAuthenticated) {
+                    window.location.href = '/';
+                    return;
+                }
+                renderLogin();
+            } else if (path === '/hackathon-register') {
+                if (!isAuthenticated) {
+                    window.location.href = '/login';
+                    return;
+                }
+                renderHackathonRegister();
+            } else if (path.startsWith('/branch/')) {
+                renderBranchPage();
+            } else if (path === '/notes') {
+                renderNotes();
+            } else if (path === '/model-papers') {
+                renderModelPapers();
+            } else if (path === '/hackathons') {
+                renderHackathons();
+            } else if (path === '/placement-guide') {
+                renderPlacement();
+            } else if (path === '/career-tools') {
+                renderCareerTools();
+            } else if (path === '/sgpa-calculator') {
+                renderSgpaCalculator();
+            } else if (path === '/about') {
+                renderAbout();
+            } else if (path === '/contact') {
+                renderContact();
+            } else if (path === '/faqs') {
+                renderFaqs();
+            } else {
+                renderHome();
+            }
+
+            updateNavbar();
+        }
+
+        // Navigation
+        function navigate(path) {
+            window.history.pushState({}, '', path);
+            router();
+        }
+
+        // Authentication Functions
+        function login(email, password) {
+            // Simulate login
+            currentUser = { email: email, name: email.split('@')[0] };
+            isAuthenticated = true;
+            localStorage.setItem('exammeta_user', JSON.stringify(currentUser));
+            window.location.href = '/';
+        }
+
+        function signup(name, email, password) {
+            currentUser = { email: email, name: name };
+            isAuthenticated = true;
+            localStorage.setItem('exammeta_user', JSON.stringify(currentUser));
+            window.location.href = '/';
+        }
+
+        function logout() {
+            currentUser = null;
+            isAuthenticated = false;
+            localStorage.removeItem('exammeta_user');
+            window.location.href = '/';
+        }
+
+        function checkAuth() {
+            const stored = localStorage.getItem('exammeta_user');
+            if (stored) {
+                currentUser = JSON.parse(stored);
+                isAuthenticated = true;
+            }
+        }
+
+        // ========================================
+        // RENDER FUNCTIONS
+        // ========================================
+
+        function updateNavbar() {
+            const nav = document.getElementById('navbar');
+            if (!nav) return;
+
+            const isLogin = currentRoute === '/login';
+            const isRegister = currentRoute === '/hackathon-register';
+
+            nav.innerHTML = `
+                <header class="nav-portal-layer">
+                    <div class="nav-top-bar">
+                        <div class="nav-left">
+                            <a href="/" class="nav-brand" onclick="event.preventDefault(); navigate('/')">
+                                <div class="nav-brand-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div>
+                                    <div class="nav-brand-text">Exam<span>Meta</span></div>
+                                    <div class="nav-brand-tagline">Student Academic Portal</div>
+                                </div>
+                            </div>
+                        </div>
+                        <nav class="nav-desktop">
+                            <ul class="nav-list">
+                                <li><a href="/" class="nav-link ${currentRoute === '/' ? 'is-active' : ''}" onclick="event.preventDefault(); navigate('/')">Home</a></li>
+                                <li><a href="/notes" class="nav-link ${currentRoute === '/notes' ? 'is-active' : ''}" onclick="event.preventDefault(); navigate('/notes')">Notes</a></li>
+                                <li><a href="/model-papers" class="nav-link ${currentRoute === '/model-papers' ? 'is-active' : ''}" onclick="event.preventDefault(); navigate('/model-papers')">Model Papers</a></li>
+                                <li><a href="/placement-guide" class="nav-link ${currentRoute === '/placement-guide' ? 'is-active' : ''}" onclick="event.preventDefault(); navigate('/placement-guide')">Placement</a></li>
+                                <li><a href="/career-tools" class="nav-link ${currentRoute === '/career-tools' ? 'is-active' : ''}" onclick="event.preventDefault(); navigate('/career-tools')">Career Tools</a></li>
+                                <li><a href="/sgpa-calculator" class="nav-link ${currentRoute === '/sgpa-calculator' ? 'is-active' : ''}" onclick="event.preventDefault(); navigate('/sgpa-calculator')">SGPA</a></li>
+                                <li><a href="/hackathons" class="nav-link ${currentRoute === '/hackathons' ? 'is-active' : ''}" onclick="event.preventDefault(); navigate('/hackathons')">Hackathons</a></li>
+                                <li><a href="/about" class="nav-link ${currentRoute === '/about' ? 'is-active' : ''}" onclick="event.preventDefault(); navigate('/about')">About</a></li>
+                                <li><a href="/contact" class="nav-link ${currentRoute === '/contact' ? 'is-active' : ''}" onclick="event.preventDefault(); navigate('/contact')">Contact</a></li>
+                                <li><a href="/faqs" class="nav-link ${currentRoute === '/faqs' ? 'is-active' : ''}" onclick="event.preventDefault(); navigate('/faqs')">FAQs</a></li>
+                            </ul>
+                        </nav>
+                        <div class="nav-actions">
+                            <div class="nav-search">
+                                <i class="fas fa-search nav-search-icon"></i>
+                                <input type="text" class="nav-search-input" placeholder="Search subjects, papers, notes...">
+                            </div>
+                            ${isAuthenticated ? `
+                                <div class="user-profile">
+                                    <div class="user-avatar">${currentUser.name.charAt(0).toUpperCase()}</div>
+                                    <div class="user-info">
+                                        <div class="user-name">${currentUser.name}</div>
+                                        <button class="user-signout" onclick="logout()">Sign Out <i class="fas fa-sign-out-alt"></i></button>
+                                    </div>
+                                </div>
+                            ` : `
+                                <a href="/login" class="nav-btn-signin">Sign in</a>
+                                <a href="/hackathon-register" class="nav-btn-getstarted"><i class="fas fa-trophy"></i> Register Hackathon</a>
+                            `}
+                        </div>
+                    </div>
+                </header>
+            `;
+        }
+
+        function renderHome() {
+            app.innerHTML = `
+                <section class="hero-section">
+                    <div class="hero-grid">
+                        <div class="hero-content">
+                            <div class="hero-kicker">
+                                <span class="kicker-dot"></span>
+                                <span>2026 Academic Year Ready</span>
+                            </div>
+                            <h1 class="hero-title">
+                                Master VTU Exams with <span class="gradient-text">Smart Study Tools</span>
+                            </h1>
+                            <p class="hero-subtitle">
+                                Complete semester notes, previous year question papers, SGPA calculators, placement guides,
+                                and career resources for all VTU schemes.
+                            </p>
+                            <div class="hero-actions">
+                                <a href="/notes" class="btn btn-primary btn-lg" onclick="event.preventDefault(); navigate('/notes')">
+                                    Browse Subjects <i class="fas fa-graduation-cap"></i>
+                                </a>
+                                <a href="/model-papers" class="btn btn-outline btn-lg" onclick="event.preventDefault(); navigate('/model-papers')">
+                                    View Question Papers
+                                </a>
+                            </div>
+                        </div>
+                        <div class="hero-visual">
+                            <div class="hero-card-float">
+                                <div class="float-card-icon violet"><i class="fas fa-book"></i></div>
+                                <div class="float-card-content">
+                                    <h4>Semester Notes</h4>
+                                    <p>Module-wise notes for all branches</p>
+                                </div>
+                            </div>
+                            <div class="hero-card-float">
+                                <div class="float-card-icon orange"><i class="fas fa-chart-line"></i></div>
+                                <div class="float-card-content">
+                                    <h4>SGPA Calculator</h4>
+                                    <p>Calculate grades instantly</p>
+                                </div>
+                            </div>
+                            <div class="hero-card-float">
+                                <div class="float-card-icon teal"><i class="fas fa-graduation-cap"></i></div>
+                                <div class="float-card-content">
+                                    <h4>Model Papers</h4>
+                                    <p>PYQs and solved papers</p>
+                                </div>
+                            </div>
+                            <div class="hero-badge-grid">
+                                <div class="hero-badge-item">
+                                    <span class="badge-icon violet"><i class="fas fa-eye"></i></span>
+                                    <span>50K+ Students</span>
+                                </div>
+                                <div class="hero-badge-item">
+                                    <span class="badge-icon orange"><i class="fas fa-graduation-cap"></i></span>
+                                    <span>100+ Subjects</span>
+                                </div>
+                                <div class="hero-badge-item">
+                                    <span class="badge-icon teal"><i class="fas fa-shield-alt"></i></span>
+                                    <span>Verified Notes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="category-section">
+                    <div class="category-nav-card">
+                        <button class="category-chip category-chip-active">All</button>
+                        <button class="category-chip">CSE Core</button>
+                        <button class="category-chip">ECE Core</button>
+                        <button class="category-chip">AI/ML</button>
+                        <button class="category-chip">Mechanical</button>
+                        <button class="category-chip">Civil</button>
+                    </div>
+                </section>
+
+                <div class="section-header-layout">
+                    <div class="section-title-row">
+                        <div class="section-icon violet"><i class="fas fa-graduation-cap"></i></div>
+                        <h2>Trending <span class="accent-text">Subjects</span></h2>
+                    </div>
+                    <a href="/notes" class="view-all-link">View All <i class="fas fa-chevron-right"></i></a>
+                </div>
+
+                <div class="subjects-grid">
+                    ${Object.entries(subjectsData).slice(0, 3).map(([branchKey, semesters]) => {
+                        const subjects = semesters[1] || semesters[3] || [];
+                        return subjects.slice(0, 3).map(subject => `
+                            <a href="/branch/${branchKey}/${semesters[1] ? 1 : 3}/modules/${encodeURIComponent(subject.name)}" class="subject-card card-violet" onclick="event.preventDefault(); navigate('/branch/${branchKey}/${semesters[1] ? 1 : 3}/modules/${encodeURIComponent(subject.name)}')">
+                                <div class="card-image-area">
+                                    <div class="card-image-gradient violet"><i class="fas fa-book"></i></div>
+                                    <div class="card-badge-tag">${branches[branchKey] || branchKey}</div>
+                                </div>
+                                <div class="card-content-area">
+                                    <div class="card-meta">
+                                        <span>${semesters[1] ? '1st' : '3rd'} Semester</span>
+                                        <span class="meta-dot"></span>
+                                        <span>12 min read</span>
+                                    </div>
+                                    <h3 class="card-title">${subject.name}</h3>
+                                    <p className="card-description">${subject.info}</p>
+                                    <div class="card-footer">
+                                        <div class="card-stats">
+                                            <div><span class="stat-value">12.5K</span><span style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">views</span></div>
+                                            <div><span class="stat-value">840</span><span style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">likes</span></div>
+                                        </div>
+                                        <span class="card-arrow"><i class="fas fa-chevron-right"></i></span>
+                                    </div>
+                                </div>
+                            </a>
+                        `).join('');
+                    }).join('')}
+                </div>
+
+                <section class="features-section">
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon violet"><i class="fas fa-shield-halved"></i></div>
+                            <div class="feature-info">
+                                <h4>Verified Content</h4>
+                                <p>All notes and papers are verified by academic experts.</p>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon orange"><i class="fas fa-clock"></i></div>
+                            <div class="feature-info">
+                                <h4>Regular Updates</h4>
+                                <p>Content updated every week for the latest syllabus.</p>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon teal"><i class="fas fa-users"></i></div>
+                            <div class="feature-info">
+                                <h4>Student Community</h4>
+                                <p>Join thousands of VTU students learning together.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderLogin() {
+            app.innerHTML = `
+                <div class="login-page">
+                    <div class="login-background">
+                        <div class="login-shape shape-1"></div>
+                        <div class="login-shape shape-2"></div>
+                        <div class="login-shape shape-3"></div>
+                    </div>
+                    <div class="login-container">
+                        <div class="login-card">
+                            <div class="login-header">
+                                <div class="login-logo">
+                                    <div class="nav-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+                                    <h1>Exam<span>Meta</span></h1>
+                                </div>
+                                <h2>Welcome Back</h2>
+                                <p>Sign in to access your VTU study resources</p>
+                            </div>
+                            <form class="login-form" id="loginForm">
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-lg" id="loginBtn">Sign In</button>
+                            </form>
+                            <div class="login-footer">
+                                <span>Don't have an account?</span>
+                                <button type="button" class="toggle-link" onclick="showSignup()">Sign up</button>
+                            </div>
+                        </div>
+                        <div id="signupForm" style="display:none;">
+                            <div class="login-card">
+                                <div class="login-header">
+                                    <div class="login-logo">
+                                        <div class="nav-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+                                        <h1>Exam<span>Meta</span></h1>
+                                    </div>
+                                    <h2>Create Account</h2>
+                                    <p>Join thousands of VTU students today</p>
+                                </div>
+                                <form class="login-form" id="signupFormInner">
+                                    <div class="form-group">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" id="signupName" placeholder="Enter your full name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Email Address</label>
+                                        <input type="email" id="signupEmail" placeholder="Enter your email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Password</label>
+                                        <input type="password" id="signupPassword" placeholder="Create password" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Confirm Password</label>
+                                        <input type="password" id="signupConfirmPassword" placeholder="Confirm password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-lg" id="signupBtn">Create Account</button>
+                                </form>
+                                <div class="login-footer">
+                                    <span>Already have an account?</span>
+                                    <button type="button" class="toggle-link" onclick="showLogin()">Sign in</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('loginForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                login(email, password);
+            });
+
+            document.getElementById('signupFormInner').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('signupName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                const confirmPassword = document.getElementById('signupConfirmPassword').value;
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match');
+                    return;
+                }
+                signup(name, email, password);
+            });
+        }
+
+        function showLogin() {
+            document.getElementById('signupForm').style.display = 'none';
+            document.querySelector('.login-card').style.display = 'block';
+        }
+
+        function showSignup() {
+            document.querySelector('.login-card').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'block';
+        }
+
+        function renderHackathonRegister() {
+            app.innerHTML = `
+                <div class="hackathon-reg-page">
+                    <div class="reg-header">
+                        <div class="reg-header-content">
+                            <div class="reg-badge"><i class="fas fa-trophy"></i><span>Hackathon Registration</span></div>
+                            <h1>Register Your Hackathon</h1>
+                            <p>Submit your hackathon details and join the ExamMeta community of innovators.</p>
+                        </div>
+                    </div>
+                    <div class="reg-container">
+                        <div class="reg-card">
+                            <form class="reg-form" id="hackathonForm">
+                                <div class="form-section">
+                                    <h3 class="section-title"><i class="fas fa-calendar section-icon"></i>Event Details</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label className="form-label">Hackathon Name <span class="required">*</span></label>
+                                            <input type="text" name="hackathonName" placeholder="e.g., TechFest 2026" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Organizer Name <span class="required">*</span></label>
+                                            <input type="text" name="organizerName" placeholder="e.g., CSE Department" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Email <span class="required">*</span></label>
+                                            <input type="email" name="email" placeholder="e.g., hackfest@college.edu" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Phone Number</label>
+                                            <input type="tel" name="phone" placeholder="e.g., +91 98765 43210" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">College / Institution</label>
+                                            <input type="text" name="collegeName" placeholder="e.g., VTU College of Engineering" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Event Date</label>
+                                            <input type="date" name="eventDate" />
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label class="form-label">Domain <span class="required">*</span></label>
+                                            <select name="domain" required>
+                                                <option value="">Select a domain</option>
+                                                <option value="AI / Machine Learning">AI / Machine Learning</option>
+                                                <option value="Web Development">Web Development</option>
+                                                <option value="Mobile App Development">Mobile App Development</option>
+                                                <option value="Blockchain">Blockchain</option>
+                                                <option value="Cybersecurity">Cybersecurity</option>
+                                                <option value="IoT / Embedded Systems">IoT / Embedded Systems</option>
+                                                <option value="Data Science / Analytics">Data Science / Analytics</option>
+                                                <option value="AR / VR">AR / VR</option>
+                                                <option value="Cloud Computing">Cloud Computing</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label class="form-label">Description</label>
+                                            <textarea name="description" placeholder="Tell us about your hackathon..." rows="3"></textarea>
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label class="form-label">Registration Link</label>
+                                            <input type="url" name="registrationLink" placeholder="https://..." />
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label class="form-label">Prizes</label>
+                                            <input type="text" name="prizes" placeholder="e.g., ₹50,000 + Goodies" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-section">
+                                    <h3 class="section-title"><i class="fas fa-users section-icon"></i>Team Details</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label class="form-label">Team Name <span class="required">*</span></label>
+                                            <input type="text" name="teamName" placeholder="e.g., Code Warriors" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Team Members</label>
+                                            <select name="teamMembers">
+                                                <option value="1">1 Member</option>
+                                                <option value="2">2 Members</option>
+                                                <option value="3">3 Members</option>
+                                                <option value="4">4 Members</option>
+                                                <option value="5">5 Members</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-section terms-section">
+                                    <div class="form-group checkbox-group">
+                                        <input type="checkbox" name="terms" required />
+                                        <label class="form-label terms-label">
+                                            I agree to the <a href="#" className="terms-link">Terms and Conditions</a> and confirm that all information provided is accurate.
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" className="reg-submit-btn">
+                                    Register for Hackathon <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('hackathonForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Hackathon registered successfully! (Demo mode - data not saved to server)');
+            });
+        }
+
+        function renderNotes() {
+            app.innerHTML = `
+                <div class="notes-page">
+                    <section class="hero-section">
+                        <div class="hero-content">
+                            <div class="hero-kicker">
+                                <span class="kicker-dot"></span>
+                                <span>Semester Notes Ready</span>
+                            </div>
+                            <h1 class="hero-title">Browse VTU Notes</h1>
+                            <p className="hero-subtitle">Complete semester notes for all branches and semesters.</p>
+                        </div>
+                    </div>
+                    <div class="home-container" style="max-width:1200px;margin:0 auto;padding:2rem var(--space-lg);">
+                        <div class="category-nav-card" style="margin-bottom:2rem;">
+                            <button class="category-chip category-chip-active">All Branches</button>
+                            ${Object.keys(branches).map(branch => `<button class="category-chip">${branches[branch]}</button>`).join('')}
+                        </div>
+                        <div class="subjects-grid">
+                            ${Object.entries(subjectsData).flatMap(([branchKey, sem]) => 
+                                Object.entries(sem).flatMap(([semNum, subjects]) =>
+                                    subjects.map(subject => `
+                                    <a href="#" className="subject-card card-violet">
+                                        <div class="card-image-area">
+                                            <div className="card-image-gradient violet"><i class="fas fa-book"></i></div>
+                                            <div className="card-badge-tag">${branches[branchKey]}</div>
+                                        </div>
+                                        <div class="card-content-area">
+                                            <div class="card-meta"><span>${semNum}th Semester</span><span class="meta-dot"></span><span>12 min read</span></div>
+                                            <h3 className="card-title">${subject.name}</h3>
+                                            <p className="card-description">${subject.info}</p>
+                                            <div className="card-footer">
+                                                <div className="card-stats"><div><span className="stat-value">12.5K</span><span style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">views</span></div></div>
+                                                <span className="card-arrow"><i className="fas fa-chevron-right"></i></span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    `).join('')
+                                )
+                            ).join('')
+                        }
+                    </div>
+                </div>
+            `);
+        }
+
+        function renderModelPapers() {
+            app.innerHTML = `
+                <section class="hero-section" style="padding:2rem 0;">
+                    <div class="hero-content">
+                        <h1 className="hero-title">Model Question Papers</h1>
+                        <p className="hero-subtitle">Previous year question papers for all VTU branches and semesters.</p>
+                    </div>
+                </section>
+                <div class="home-container">
+                    <div class="card" style="text-align:center;padding:3rem;">
+                        <h3>Model Papers Coming Soon</h3>
+                        <p>Previous year question papers will be available here.</p>
+                        <a href="/" className="btn btn-primary" onclick="event.preventDefault(); navigate('/')">Back to Home</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderHackathons() {
+            app.innerHTML = `
+                <section class="hero-section" style="padding:2rem 0;">
+                    <div class="hero-content">
+                        <h1 className="hero-title">Hackathon Finder</h1>
+                        <p className="hero-subtitle">Find upcoming hackathons sourced live from Devpost and Unstop.</p>
+                    </div>
+                </section>
+                <div class="home-container">
+                    <div class="card" style="padding:3rem;text-align:center;">
+                        <h3>Hackathon Finder</h3>
+                        <p>Browse upcoming hackathons from Devpost and Unstop.</p>
+                        {!isAuthenticated ? (
+                            <p style="color:var(--text-muted);margin-bottom:1rem;">Please log in to register for hackathons.</p>
+                            <a href="/login" className="btn btn-primary" onclick="event.preventDefault(); navigate('/login')">Sign In</a>
+                        ) : (
+                            <a href="/hackathon-register" className="btn btn-primary btn-lg" onclick="event.preventDefault(); navigate('/hackathon-register')">
+                                Register for Hackathon <i className="fas fa-trophy"></i>
+                            </a>
+                        )}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPlacement() {
+            app.innerHTML = `
+                <section class="hero-section" style="padding:2rem 0;">
+                    <div class="hero-content">
+                        <h1 className="hero-title">Placement Guide</h1>
+                        <p className="hero-subtitle">Interview roadmaps, company experiences, and placement resources.</p>
+                    </div>
+                </section>
+                <div class="home-container">
+                    <div class="card" style="text-align:center;padding:3rem;">
+                        <h3>Placement Guide</h3>
+                        <p>Company interview experiences and roadmaps coming soon.</p>
+                        <a href="/" className="btn btn-primary" onclick="event.preventDefault(); navigate('/')">Back to Home</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCareerTools() {
+            app.innerHTML = `
+                <section class="hero-section" style="padding:2rem 0;">
+                    <div class="hero-content">
+                        <h1 className="hero-title">Career & Tools</h1>
+                        <p className="hero-subtitle">Career resources and student utilities.</p>
+                    </div>
+                </section>
+                <div class="home-container">
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon violet"><i class="fas fa-calculator"></i></div>
+                            <div className="feature-info">
+                                <h4>SGPA Calculator</h4>
+                                <p>Calculate your grade point average.</p>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div className="feature-icon orange"><i class="fas fa-briefcase"></i></div>
+                            <div className="feature-info">
+                                <h4>Placement Guide</h4>
+                                <p>Interview roadmaps and company experiences.</p>
+                            </div>
+                        </div>
+                        <div className="feature-card">
+                            <div className="feature-icon teal"><i className="fas fa-chart-line"></i></div>
+                            <div className="feature-info">
+                                <h4>Career Analytics</h4>
+                                <p>Track your academic progress.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSgpaCalculator() {
+            app.innerHTML = `
+                <section class="hero-section" style="padding:2rem 0;">
+                    <div className="hero-content">
+                        <h1 className="hero-title">SGPA Calculator</h1>
+                        <p className="hero-subtitle">Calculate your grade point average instantly.</p>
+                    </div>
+                </section>
+                <div className="home-container">
+                    <div className="card" styleName="max-width:600px;margin:0 auto;">
+                        <h3 className="text-center">SGPA Calculator</h3>
+                        <div className="form-group">
+                            <label className="form-label">Number of Subjects</label>
+                            <input type="number" id="sgpaSubjects" value="5" min="1" max="10" />
+                        </div>
+                        <div id="sgpaInputs">
+                            <!-- Generated inputs -->
+                        </div>
+                        <button type="button" className="btn btn-primary" onclick="calculateSGPA()">Calculate SGPA</button>
+                        <div id="sgpaResult" styleName="margin-top:1rem;font-size:1.2rem;font-weight:700;color:var(--primary-600)"></div>
+                    </div>
+                </div>
+                <script>
+                    function calculateSGPA() {
+                        const count = parseInt(document.getElementById('sgpaSubjects').value);
+                        let totalCredits = 0, totalPoints = 0;
+                        for(let i=1; i<=count; i++) {
+                            const credits = parseInt(document.getElementById(`credits${i}`).value) || 0;
+                            const grade = parseInt(document.getElementById(`grade${i}`).value) || 0;
+                            totalCredits += credits;
+                            totalPoints += credits * grade;
+                        }
+                        const sgpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : 0;
+                        document.getElementById('sgpaResult').textContent = 'Your SGPA: ' + sgpa;
+                    }
+                </script>
+            `;
+        }
+
+        function renderAbout() {
+            app.innerHTML = `
+                <section className="hero-section" styleName="padding:2rem 0;">
+                    <div className="hero-content">
+                        <h1 className="hero-title">About ExamMeta</h1>
+                        <p className="hero-subtitle">Student academic portal for VTU engineering students.</p>
+                    </div>
+                </section>
+                <div className="home-container">
+                    <div className="card" styleName="text-align:center;padding:3rem;">
+                        <h3>About Us</h3>
+                        <p>ExamMeta is a student resource portal built for VTU engineering students.</p>
+                        <a href="/" className="btn btn-primary" onclick="event.preventDefault(); navigate('/')">Back to Home</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderContact() {
+            app.innerHTML = `
+                <section className="hero-section" styleName="padding:2rem 0;">
+                    <div className="hero-content">
+                        <h1 className="hero-title">Contact Us</h1>
+                        <p className="hero-subtitle">Get in touch with the ExamMeta team.</p>
+                    </div>
+                </section>
+                <div className="home-container">
+                    <div className="card">
+                        <h3>Contact Information</h3>
+                        <p><i className="fas fa-envelope"></i> Email: techg_fusion@edu.com</p>
+                        <p><i className="fas fa-phone"></i> Phone: +91 98765 43210</p>
+                        <p><i className="fas fa-map-marker-alt"></i> Location: APS College of Engineering, Bengaluru</p>
+                        <a href="/" className="btn btn-primary" onclick="event.preventDefault(); navigate('/')">Back to Home</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFaqs() {
+            app.innerHTML = `
+                <section className="hero-section" styleName="padding:2rem 0;">
+                    <div className="hero-content">
+                        <h1 className="hero-title">FAQs</h1>
+                        <p className="hero-subtitle">Frequently asked questions about ExamMeta.</p>
+                    </div>
+                </section>
+                <div className="home-container">
+                    <div className="card">
+                        <h3>FAQs</h3>
+                        <p>Frequently asked questions coming soon.</p>
+                        <a href="/" className="btn btn-primary" onclick="event.preventDefault(); navigate('/')">Back to Home</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize
+        checkAuth();
+        router();
+
+        // Handle browser back/forward
+        window.onpopstate = router;
+    </script>
+</body>
+</html>

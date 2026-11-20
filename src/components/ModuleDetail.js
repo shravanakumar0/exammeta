@@ -10,7 +10,7 @@ import {
   HiOutlineExclamationTriangle
 } from "react-icons/hi2";
 import {
-  FaUniversity, FaChevronRight, FaClock, FaChevronLeft, FaRobot
+  FaUniversity, FaChevronRight, FaClock, FaChevronLeft
 } from "react-icons/fa";
 import { AiOutlineHome, AiOutlineFilePdf } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
@@ -397,16 +397,7 @@ const ModuleDetail = () => {
                                   >
                                       <HiOutlineEye /> Preview
                                   </motion.button>
-                                  <motion.button 
-                                    whileHover={{ scale: 1.05, backgroundColor: "rgba(168, 85, 247, 0.3)" }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => window.dispatchEvent(new CustomEvent('open-ai-assistant', { detail: { pdfUrl: module.previewUrl } }))} 
-                                    className="card-action-btn ai-explain"
-                                    title="Ask AI Copilot to explain or summarize this module"
-                                    style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3))', border: '1px solid rgba(168, 85, 247, 0.5)', color: '#c084fc' }}
-                                  >
-                                      <FaRobot /> Ask AI
-                                  </motion.button>
+
                               </div>
                           </motion.div>
                           
