@@ -7,6 +7,9 @@
 # build errors. Keep warnings visible in the log without failing the deploy.
 [build.environment]
   CI = "false"
+  # Supabase's anon key is a public client key that Create React App inlines
+  # into the browser bundle by design, so secret scanning must not flag it.
+  SECRETS_SCAN_OMIT_KEYS = "REACT_APP_SUPABASE_ANON_KEY"
 
 [functions]
   node_bundler = "esbuild"
