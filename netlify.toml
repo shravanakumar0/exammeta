@@ -1,6 +1,12 @@
 [build]
+  command = "npm run build"
   publish = "build"
   functions = "netlify/functions"
+
+# Netlify sets CI=true, which makes Create React App treat ESLint warnings as
+# build errors. Keep warnings visible in the log without failing the deploy.
+[build.environment]
+  CI = "false"
 
 [functions]
   node_bundler = "esbuild"
