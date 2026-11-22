@@ -760,6 +760,9 @@ const ModelPapers = () => {
   const [scrollProgress, setScrollProgress] = React.useState(0);
   const [toast, setToast] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(true);
+  const visiblePapers = showBookmarks
+    ? papers.filter(paper => bookmarkedPapers.includes(paper.id))
+    : filteredPapers;
 
   // Toast Notification System
   const showToast = (message, type = 'success') => {
@@ -1061,7 +1064,7 @@ const ModelPapers = () => {
         {/* -- Papers Grid with 3D Tilt Effect Look -- */}
         <motion.div layout className="papers-high-grid">
           <AnimatePresence mode='popLayout'>
-            {(showBookmarks ? papers.filter(p => bookmarkedPapers.includes(p.id)) : filteredPapers).map((paper, idx) => (
+            {visiblePapers.map((paper, idx) => (
               <React.Fragment key={paper.id}>
               <motion.div
                 layout
@@ -1142,11 +1145,13 @@ const ModelPapers = () => {
           </AnimatePresence>
         </motion.div>
 
-        {filteredPapers.length === 0 && (
+        {visiblePapers.length === 0 && (
           <div className="papers-empty-state">
             <HiInbox className="empty-icon" />
-            <h3 className="empty-h">System Empty</h3>
-            <p className="empty-p">No resources detected for this query.</p>
+            <h3 className="empty-h">{showBookmarks ? 'No saved papers yet' : 'No papers found'}</h3>
+            <p className="empty-p">
+              {showBookmarks ? 'Save a paper with the bookmark button to find it here.' : 'Try a different search or update your filters.'}
+            </p>
             <button className="reset-btn-vibe" onClick={() => { setSearchTerm(''); setSelectedCategory('all'); setSelectedSemester('all'); }}>Re-initialize</button>
           </div>
         )}

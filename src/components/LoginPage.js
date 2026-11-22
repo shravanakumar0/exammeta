@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaUser, FaLock, FaEnvelope, FaGraduationCap, FaGoogle, FaGithub, FaArrowRight } from 'react-icons/fa';
 import { supabase, signUp, signIn, signOut, onAuthStateChange } from '../supabaseClient';
 import './LoginPage.css';
@@ -15,6 +15,10 @@ const LoginPage = () => {
     confirmPassword: '',
   });
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnPath = location.state?.from?.pathname
+    ? `${location.state.from.pathname}${location.state.from.search || ''}${location.state.from.hash || ''}`
+    : '/';
 
   // Check if env variables are configured
   const isEnvConfigured = Boolean(
@@ -31,11 +35,11 @@ const LoginPage = () => {
 
     const { data: { subscription } } = onAuthStateChange((event, session) => {
       if (session) {
-        navigate('/');
+        navigate(returnPath, { replace: true });
       }
     });
     return () => subscription.unsubscribe();
-  }, [navigate, isEnvConfigured]);
+  }, [navigate, isEnvConfigured, returnPath]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -90,7 +94,7 @@ const LoginPage = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}${returnPath}`,
         },
       });
       if (error) throw error;

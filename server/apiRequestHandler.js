@@ -8,6 +8,29 @@ const MAX_BODY_LENGTH = 500000;
 
 function handleApiRequest(request, response) {
   const path = new URL(request.url, "http://localhost").pathname;
+  if (request.method === "GET" && path === "/api/hackathons") {
+    const sendResult = result => {
+      if (response.writableEnded) return;
+      response.setHeader("Content-Type", "application/json; charset=utf-8");
+      response.setHeader(
+        "Cache-Control",
+        result.status === 200 ? "public, max-age=3600" : "no-store"
+      );
+      response.writeHead(result.status).end(JSON.stringify(result.body));
+    };
+
+    handleHackathonsRequest({ region: "India" })
+      .then(sendResult)
+      .catch(error => {
+        console.error("Hackathon feed request failed:", error.message);
+        sendResult({
+          status: 502,
+          body: { error: "Could not load hackathon listings. Please try again." },
+        });
+      });
+    return true;
+  }
+
   if (request.method !== "POST" || !API_PATHS.has(path)) return false;
 
   let raw = "";

@@ -72,3 +72,30 @@
   .papers-portal-root .category-scroller,
   .papers-portal-root .sem-pill-grid { max-width: 100%; }
 }
+
+.papers-portal-root .portal-container {
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+
+.papers-portal-root .papers-hero-card {
+  margin-bottom: 0 !important;
+}
+
+.papers-portal-root .papers-main-content {
+  padding-top: 12px !important;
+}
+
+.papers-portal-root .trending-hub-top {
+  margin: 0 0 16px !important;
+}
+
+.papers-portal-root .papers-high-grid {
+  gap: 17px !important;
+}
+
+@media (max-width: 640px) {
+  .papers-portal-root .papers-main-content {
+    padding-top: 8px !important;
+  }
+}

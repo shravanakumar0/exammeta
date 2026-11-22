@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBookOpen, FaExternalLinkAlt, FaRegEye, FaSearch } from "react-icons/fa";
 import {
@@ -8,6 +8,8 @@ import {
   studyResources
 } from "../data/studyResources";
 import "./StudyFeatures.css";
+import { analyzePyqResources, getQuestionAnswer } from "../api/gemini";
+import { getFrequentQuestions } from "../supabaseClient";
 
 const MostRepeatedQuestions = () => {
   const subjects = useMemo(() => {
@@ -26,12 +28,60 @@ const MostRepeatedQuestions = () => {
     return Array.from(uniqueSubjects.values());
   }, []);
 
-  const [selectedSubjectKey, setSelectedSubjectKey] = useState(subjects[0]?.key || "");
+  const firstPyqSubject = subjects.find(subject =>
+    studyResources.some(item =>
+      item.subjectKey === subject.key &&
+      isQuestionResource(item) &&
+      !isAnswerResource(item)
+    )
+  );
+  const [selectedSubjectKey, setSelectedSubjectKey] = useState(
+    firstPyqSubject?.key || subjects[0]?.key || ""
+  );
   const [selectedModule, setSelectedModule] = useState(1);
   const [openResourceId, setOpenResourceId] = useState("");
   const [search, setSearch] = useState("");
-
+  const [importantQuestions, setImportantQuestions] = useState([]);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState("");
+  const [activeQuestion, setActiveQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [answerLoading, setAnswerLoading] = useState(false);
+  const [storedQuestions, setStoredQuestions] = useState([]);
+  const [storedLoading, setStoredLoading] = useState(false);
+  const [storedError, setStoredError] = useState("");
   const selectedSubject = subjects.find(subject => subject.key === selectedSubjectKey);
+
+  useEffect(() => {
+    if (!selectedSubject) return;
+    let active = true;
+    setStoredLoading(true);
+    setStoredError("");
+    getFrequentQuestions({
+      subjectCode: selectedSubject.code || selectedSubject.title,
+      subjectTitle: selectedSubject.title,
+      moduleNumber: selectedModule,
+      scheme: "2022",
+    }).then(({ data, error }) => {
+      if (!active) return;
+      if (error) {
+        setStoredQuestions([]);
+        const missingClusterTable =
+          error.code === "PGRST205" ||
+          /question_clusters|Could not find the table/i.test(error.message || "");
+        setStoredError(
+          missingClusterTable
+            ? "Processed question history is not installed yet. Apply supabase/migrations/202611220002_repeated_questions.sql in the Supabase SQL Editor."
+            : error.message || "Could not load stored frequent questions."
+        );
+      } else {
+        setStoredQuestions(data || []);
+      }
+    }).finally(() => {
+      if (active) setStoredLoading(false);
+    });
+    return () => { active = false; };
+  }, [selectedSubject, selectedModule]);
   const subjectResources = studyResources.filter(item => item.subjectKey === selectedSubjectKey);
   const moduleNumbers = Array.from(new Set(
     subjectResources
@@ -52,6 +102,66 @@ const MostRepeatedQuestions = () => {
   const visibleQuestionResources = filterResources(questionResources);
   const openResource = questionResources
     .find(item => item.id === openResourceId);
+
+  const handleGetAnswer = async (question) => {
+    setActiveQuestion(question);
+    setAnswer("");
+    setAnswerLoading(true);
+    try {
+      const resourceUrl = visibleQuestionResources[0]?.url || "";
+      const result = await getQuestionAnswer({
+        subject: `${selectedSubject.title} (${selectedSubject.code})`,
+        moduleNumber: selectedModule,
+        question,
+        resourceUrl,
+      });
+      setAnswer(result.answer || "");
+    } catch (error) {
+      setAnswer(error.message || "Could not generate an answer.");
+    } finally {
+      setAnswerLoading(false);
+    }
+  };
+
+  const analyzeSelectedPapers = async () => {
+    if (!selectedSubject || !visibleQuestionResources.length) {
+      setAnalysisError("Select a subject that has an uploaded PYQ question paper.");
+      return;
+    }
+    setAnalysisLoading(true);
+    setAnalysisError("");
+    setImportantQuestions([]);
+    try {
+      const result = await analyzePyqResources({
+        subject: `${selectedSubject.title} (${selectedSubject.code})`,
+        moduleNumber: selectedModule,
+        resourceUrls: visibleQuestionResources
+          .filter(item => !isAnswerResource(item))
+          .slice(0, 2)
+          .map(item => item.url),
+      });
+      setImportantQuestions(Array.isArray(result.questions) ? result.questions : []);
+    } catch (error) {
+      const message = error.message || "Could not analyze the uploaded question papers.";
+      setAnalysisError(
+        /timed out|502|bad gateway/i.test(message)
+          ? `${message} The analysis can take longer for large PDFs. Choose Analyze important questions to retry.`
+          : message
+      );
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
+
+  const autoAnalysisKey = `${selectedSubjectKey}-${selectedModule}-${visibleQuestionResources.map(item => item.id).join("|")}`;
+  useEffect(() => {
+    if (!selectedSubject || !visibleQuestionResources.length || storedLoading) return;
+    if (storedQuestions.length > 0) return;
+    if (!analysisLoading) analyzeSelectedPapers();
+    // The derived key identifies exactly which subject, module, and uploaded
+    // PYQ resources should trigger an analysis.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoAnalysisKey]);
 
   const renderResourceCards = (items) => (
     <div className="study-resource-list">
@@ -94,10 +204,9 @@ const MostRepeatedQuestions = () => {
     <section className="study-feature-section repeated-questions" id="repeated-questions">
       <div className="study-feature-heading">
         <span className="study-feature-eyebrow">VTU QUESTION BANK</span>
-        <h2>Uploaded PYQ Question Papers</h2>
+        <h2>Important PYQ Questions</h2>
         <p>
-          Browse only the previous-year question papers already uploaded to ExamMeta. Important
-          repeated-question predictions are not shown in this section.
+          Analyze uploaded PYQ PDFs, see repeated questions by module and open a detailed answer for each question.
         </p>
       </div>
 
@@ -114,6 +223,10 @@ const MostRepeatedQuestions = () => {
               setSelectedSubjectKey(event.target.value);
               setSelectedModule(1);
               setOpenResourceId("");
+              setImportantQuestions([]);
+              setAnalysisError("");
+              setActiveQuestion("");
+              setAnswer("");
             }}
           >
             {subjects.map(subject => (
@@ -130,6 +243,10 @@ const MostRepeatedQuestions = () => {
             onChange={event => {
               setSelectedModule(Number(event.target.value));
               setOpenResourceId("");
+              setImportantQuestions([]);
+              setAnalysisError("");
+              setActiveQuestion("");
+              setAnswer("");
             }}
           >
             {availableModules.map(moduleNumber => (
@@ -142,6 +259,15 @@ const MostRepeatedQuestions = () => {
             {selectedSubject.branch} · Semester {selectedSubject.semester}
           </span>
         )}
+        <button
+          type="button"
+          className="study-resource-button"
+          disabled={analysisLoading || !visibleQuestionResources.length}
+          onClick={analyzeSelectedPapers}
+        >
+          <FaSearch aria-hidden="true" />
+          {analysisLoading ? "Analyzing PYQs…" : "Analyze important questions"}
+        </button>
       </div>
 
       {openResource && (
@@ -160,6 +286,87 @@ const MostRepeatedQuestions = () => {
       )}
 
       <div className="study-question-columns pyq-only-grid">
+        <div>
+          <h3>Frequently asked questions</h3>
+          {storedLoading && <p className="study-empty-state">Loading processed question history…</p>}
+          {!storedLoading && storedError && <p className="study-empty-state" role="alert">{storedError}</p>}
+          {!storedLoading && !storedError && storedQuestions.length > 0 && (
+            <div className="study-resource-list">
+              {storedQuestions.map((item) => (
+                <article className="study-resource-card" key={item.id}>
+                  <div className="study-resource-copy">
+                    <span className="study-resource-kicker">
+                      Asked {item.repeat_count} {item.repeat_count === 1 ? "time" : "times"}
+                      {" "}· Module {item.module_number}
+                      {" "}· {item.typical_marks || "Marks not specified"}
+                    </span>
+                    <h4>{item.representative_question}</h4>
+                    {item.years_appeared?.length > 0 && (
+                      <p>Appeared in: {item.years_appeared.join(", ")}</p>
+                    )}
+                  </div>
+                  <div className="study-resource-actions">
+                    <button
+                      type="button"
+                      className="study-resource-button"
+                      disabled={answerLoading && activeQuestion === item.representative_question}
+                      onClick={() => handleGetAnswer(item.representative_question)}
+                    >
+                      <FaBookOpen />
+                      {answerLoading && activeQuestion === item.representative_question ? "Generating answer…" : "Get answer"}
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+          {analysisLoading && <p className="study-empty-state">Analyzing uploaded question papers…</p>}
+          {!analysisLoading && analysisError && <p className="study-empty-state" role="alert">{analysisError}</p>}
+          {!storedLoading && !storedError && storedQuestions.length === 0 &&
+            !analysisLoading && !analysisError && importantQuestions.length === 0 && (
+              <p className="study-empty-state">
+                Select the subject and module, then choose <strong>Analyze important questions</strong>.
+              </p>
+            )}
+          {!analysisLoading && storedQuestions.length === 0 && importantQuestions.length > 0 && (
+            <div className="study-resource-list">
+              {importantQuestions.map((item, index) => (
+                <article className="study-resource-card" key={`${item.question}-${index}`}>
+                  <div className="study-resource-copy">
+                    <span className="study-resource-kicker">
+                      {item.module || `Module ${selectedModule}`} · {item.marks || "Marks not specified"}
+                      {" "}· Frequency {item.frequency || 1}
+                    </span>
+                    <h4>{item.question}</h4>
+                    {item.reason && <p>{item.reason}</p>}
+                  </div>
+                  <div className="study-resource-actions">
+                    <button
+                      type="button"
+                      className="study-resource-button"
+                      disabled={answerLoading && activeQuestion === item.question}
+                      onClick={() => handleGetAnswer(item.question)}
+                    >
+                      <FaBookOpen />
+                      {answerLoading && activeQuestion === item.question ? "Generating answer…" : "Get answer"}
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+          {activeQuestion && (
+            <div className="study-resource-preview" aria-live="polite">
+              <div className="study-resource-preview-heading">
+                <FaBookOpen />
+                <strong>{activeQuestion}</strong>
+              </div>
+              <div style={{ padding: "18px", whiteSpace: "pre-wrap" }}>
+                {answerLoading ? "Generating an exam-ready answer…" : answer}
+              </div>
+            </div>
+          )}
+        </div>
         <div>
           <h3>Uploaded question papers</h3>
           {visibleQuestionResources.length

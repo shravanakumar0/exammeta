@@ -16,8 +16,6 @@
     background: var(--pg-dark);
     color: var(--pg-text-main);
     font-family: 'Inter', sans-serif;
-    padding-top: 80px;
-    /* Navbar spacing */
     overflow-x: hidden;
 }
 
@@ -179,7 +177,48 @@
 .pg-card-info {
     color: var(--pg-text-sub);
     line-height: 1.6;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+}
+
+.pg-guidance-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.pg-guidance-block {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--pg-border);
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.42);
+}
+
+.pg-guidance-block h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.75rem;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+}
+
+.pg-guidance-block h3 svg {
+    flex: 0 0 auto;
+    color: #a78bfa;
+}
+
+.pg-guidance-block ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--pg-text-sub);
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.pg-guidance-block li + li {
+    margin-top: 0.65rem;
 }
 
 /* Resources List */
@@ -389,6 +428,33 @@
     .pg-tracker-card {
         padding: 1.5rem;
     }
+
+    .pg-guidance-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pg-hero {
+        padding: 3rem 1rem 2rem;
+    }
+
+    .pg-grid {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+}
+
+.pg-update-note {
+    margin: -1.5rem auto 2rem !important;
+    color: #cbd5e1 !important;
+    font-size: 0.9rem !important;
+}
+
+.pg-no-results {
+    max-width: 1400px;
+    margin: 0 auto 3rem;
+    padding: 0 2rem;
+    color: var(--pg-text-sub);
+    text-align: center;
 }
 
 /* --- Daily Tip Widget --- */

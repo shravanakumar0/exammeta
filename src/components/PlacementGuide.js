@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    FaSearch, FaDownload, FaExternalLinkAlt, FaCheckCircle, 
-    FaBookOpen, FaLaptopCode, FaUserTie, FaComments, FaBuilding, 
+import {
+    FaSearch, FaExternalLinkAlt, FaCheckCircle,
+    FaBookOpen, FaLaptopCode, FaUserTie,
     FaChevronDown, FaChevronUp, FaRocket, FaLightbulb, FaBrain,
-    FaGlobe, FaRoad, FaHourglassHalf, FaPaperPlane, FaCode, FaChartLine, FaBriefcase,
-    FaFileAlt, FaMagic, FaCopy, FaFileCode, FaSync
+    FaGlobe, FaRoad, FaCode, FaChartLine, FaBriefcase,
+    FaCopy, FaSync
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import './PlacementGuideModern.css';
@@ -16,63 +16,87 @@ const SECTIONS_DATA = [
         id: 'aptitude',
         category: 'Aptitude',
         icon: <FaBrain />,
-        title: 'Aptitude Mastery',
-        info: 'The first hurdle in 90% of recruitment processes. Focus on speed and accuracy.',
-        resources: [
-            { label: 'Indiabix (Quant & Logical)', url: 'https://www.indiabix.com/' },
-            { label: 'GeeksForGeeks Aptitude', url: 'https://www.geeksforgeeks.org/aptitude-for-placements/' },
-            { label: 'FacePrep Aptitude', url: 'https://www.faceprep.in/aptitude/' }
+        title: 'Aptitude & Assessment Skills',
+        info: 'Build accuracy first, then improve speed. Assessment formats differ by employer, so check the job-drive instructions.',
+        learn: [
+            'Percentages, ratios, averages, time-work, and data interpretation',
+            'Logical reasoning, pattern recognition, and verbal comprehension',
+            'How to estimate, eliminate options, and manage timed sections'
         ],
-        pdfs: [
-            { name: 'Quant Cheatsheet', link: 'https://drive.google.com/file/d/1e319ug9dlYbX3HixOYPyWLpLYqSMg_zY/view?usp=drive_link' },
-            { name: 'Logical Reasoning PDF', link: '#' }
+        practice: [
+            'Complete short timed sets and record accuracy as well as time',
+            'Keep an error log; redo missed questions after a few days',
+            'Take a full mock weekly and review every incorrect answer'
+        ],
+        resources: [
+            { label: 'SHL practice assessments', url: 'https://www.shl.com/shldirect/en/practice-tests/' },
+            { label: 'IndiaBIX aptitude practice', url: 'https://www.indiabix.com/' }
         ],
     },
     {
         id: 'technical',
         category: 'Technical',
         icon: <FaLaptopCode />,
-        title: 'Funda + DSA',
-        info: 'Core CS subjects (OS, DBMS, CN) and Problem Solving (DSA) are non-negotiable.',
-        resources: [
-            { label: 'Striver SDE Sheet', url: 'https://takeuforward.org/interviews/strivers-sde-sheet-top-coding-interview-problems/' },
-            { label: 'LeetCode Top 100', url: 'https://leetcode.com/problem-list/top-100-liked-questions/' },
-            { label: 'CS Fundamentals (GateSmashers)', url: 'https://www.youtube.com/c/GateSmashers' }
+        title: 'Programming, DSA & Core CS',
+        info: 'Choose one interview language, learn problem-solving fundamentals, and be ready to explain your computer-science basics.',
+        learn: [
+            'One language in depth: syntax, collections, OOP, exceptions, and debugging',
+            'Arrays, strings, hash maps, stacks, queues, trees, graphs, sorting, and complexity',
+            'SQL plus DBMS, operating systems, networking, and object-oriented design basics'
         ],
-        pdfs: [
-            { name: 'DSA Roadmap', link: 'https://drive.google.com/file/d/1HSyuSTtHV9BDBpFygw7j0QNtSdRqSHFg/view?usp=drive_link' },
-            { name: 'SQL Quick Guide', link: 'https://drive.google.com/file/d/1AZAaqV1poGvLWHkVWuLtUyP44V5tZzgm/view?usp=sharing' }
+        practice: [
+            'Solve 3–5 problems each week; explain the approach and time/space complexity aloud',
+            'Revisit failed problems and write down the pattern you missed',
+            'Practise SQL queries and give concise answers to core-CS questions'
+        ],
+        resources: [
+            { label: 'HackerRank Interview Preparation Kit', url: 'https://www.hackerrank.com/interview/interview-preparation-kit' },
+            { label: 'Official Java learning path', url: 'https://dev.java/learn/' },
+            { label: 'Official Python tutorial', url: 'https://docs.python.org/3/tutorial/' },
+            { label: 'PostgreSQL SQL tutorial', url: 'https://www.postgresql.org/docs/current/tutorial.html' }
         ],
     },
     {
         id: 'softskills',
         category: 'Soft Skills',
         icon: <FaUserTie />,
-        title: 'Resume & HR',
-        info: 'Your resume gets you shortlisted. Your communication gets you hired.',
-        resources: [
-            { label: 'Resume Worded (ATS Check)', url: 'https://resumeworded.com/' },
-            { label: 'Harvard Resume Guide', url: 'https://cdn-careerservices.fas.harvard.edu/wp-content/uploads/sites/161/2023/04/resume-and-cover-letter-guide.pdf' },
-            { label: 'Common HR Questions', url: 'https://www.indiabix.com/hr-interview/questions-and-answers/' }
+        title: 'Resume & Interview Communication',
+        info: 'Make your work easy to verify, and practise explaining your decisions clearly and honestly.',
+        learn: [
+            'A concise, readable resume tailored to the skills in each role description',
+            'STAR (Situation, Task, Action, Result) stories for teamwork and problem solving',
+            'How to describe project trade-offs, mistakes, and what you learned'
         ],
-        pdfs: [
-            { name: 'Resume Templates', link: 'https://drive.google.com/file/d/1tyXiV0fOids1O0m_0Rg99VZBNAbYl8df/view?usp=drive_link' }
+        practice: [
+            'Rewrite project bullets with the problem, your contribution, and a measured result',
+            'Record a 60-second introduction and refine it for clarity',
+            'Practise one technical and one behavioural mock interview each week'
+        ],
+        resources: [
+            { label: 'Harvard resume and cover-letter guide', url: 'https://cdn-careerservices.fas.harvard.edu/wp-content/uploads/sites/161/2023/04/resume-and-cover-letter-guide.pdf' },
+            { label: 'HackerRank interview preparation', url: 'https://www.hackerrank.com/interview/interview-preparation-kit' }
         ],
     },
     {
         id: 'offcampus',
         category: 'Off-Campus',
         icon: <FaGlobe />,
-        title: 'Off-Campus Hunt',
-        info: 'Don\'t rely solely on campus drives. 60% of high-paying jobs are found here.',
+        title: 'Applications & Job Search',
+        info: 'Use campus and off-campus routes together. Always confirm role details and eligibility on the employer’s own careers page.',
+        learn: [
+            'How to read role requirements and distinguish required from preferred skills',
+            'Application basics: resume versions, referrals, recruiter messages, and follow-ups',
+            'How to check location, graduation year, work authorization, and deadlines'
+        ],
+        practice: [
+            'Maintain a tracker with company, role, source, date, status, and next action',
+            'Tailor your resume to the role without adding skills you cannot demonstrate',
+            'Use official company job pages to verify openings before sharing personal data'
+        ],
         resources: [
             { label: 'LinkedIn Jobs (Networking)', url: 'https://www.linkedin.com/jobs/' },
-            { label: 'Wellfound (Startups)', url: 'https://wellfound.com/' },
-            { label: 'Unstop (Hackathons)', url: 'https://unstop.com/' },
-            { label: 'Instahyre (Premium)', url: 'https://www.instahyre.com/' }
-        ],
-        pdfs: [
-            { name: 'Cold Email Templates', link: '#' } // Placeholder for now
+            { label: 'Wellfound startup roles', url: 'https://wellfound.com/jobs' },
+            { label: 'Unstop opportunities', url: 'https://unstop.com/' }
         ],
     },
     {
@@ -80,100 +104,114 @@ const SECTIONS_DATA = [
         category: 'Roadmaps',
         icon: <FaRoad />,
         title: 'Role-Based Paths',
-        info: 'Curated paths for SDE, Web Dev, and Data Science roles.',
-        resources: [
-            { label: 'SDE / Core Engineering', url: 'https://roadmap.sh/backend' },
-            { label: 'Frontend / Full Stack', url: 'https://roadmap.sh/frontend' },
-            { label: 'Data Science / AI', url: 'https://roadmap.sh/ai-data-scientist' }
+        info: 'Pick one entry-level role to start. Learn the fundamentals before adding tools to your stack.',
+        learn: [
+            'Frontend: HTML, CSS, JavaScript, responsive design, accessibility, and browser APIs',
+            'Backend: one server language, HTTP/REST, SQL, authentication, testing, and deployment',
+            'Data: Python, SQL, statistics, data cleaning, visualisation, and introductory machine learning'
         ],
-        pdfs: [],
+        practice: [
+            'Choose one path for 8–12 weeks and follow its milestones in order',
+            'Build a small feature after each topic instead of collecting courses',
+            'Use official product documentation when a roadmap and a tool version differ'
+        ],
+        resources: [
+            { label: 'Backend developer roadmap', url: 'https://roadmap.sh/backend' },
+            { label: 'Frontend developer roadmap', url: 'https://roadmap.sh/frontend' },
+            { label: 'MDN web development curriculum', url: 'https://developer.mozilla.org/en-US/docs/Learn_web_development' },
+            { label: 'AWS cloud fundamentals (optional)', url: 'https://aws.amazon.com/training/learn-about/cloud-practitioner/' }
+        ],
     },
-
     {
         id: 'projects',
         category: 'Projects',
         icon: <FaRocket />,
         title: 'Project Portfolio',
-        info: 'Showcase practical application of your skills. Build full-stack or unique niche projects.',
-        resources: [
-            { label: 'GitHub Project Ideas', url: 'https://github.com/florinpop17/app-ideas' },
-            { label: 'Figma for UI Design', url: 'https://www.figma.com/' }
+        info: 'A focused, working project is stronger evidence than a long list of tools. Make your contribution and decisions easy to inspect.',
+        learn: [
+            'Git and GitHub workflow, readable code, basic tests, and clear documentation',
+            'How to design a small solution around a real user need',
+            'Deployment basics, environment variables, and safe handling of credentials'
         ],
-        pdfs: [],
+        practice: [
+            'Build and deploy one end-to-end project related to your target role',
+            'Add a useful README with setup steps, screenshots, features, and limitations',
+            'Prepare a short demo and explain one trade-off and one improvement'
+        ],
+        resources: [
+            { label: 'GitHub Skills: Introduction to GitHub', url: 'https://skills.github.com/' },
+            { label: 'GitHub Hello World guide', url: 'https://docs.github.com/en/get-started/using-github/hello-world' },
+            { label: 'MDN project-based web learning', url: 'https://developer.mozilla.org/en-US/docs/Learn_web_development' }
+        ],
     },
     {
         id: 'mock-tests',
         category: 'Mock Tests',
         icon: <FaBrain />,
-        title: 'Skill Assessment',
-        info: 'Test your knowledge in Coding, Aptitude, and Core CS subjects with our gamified quiz arena.',
-        resources: [
-            { label: 'Start Mock Test', url: '/test' } // Internal Link
+        title: 'Mock Tests & Review',
+        info: 'Use practice tests to find gaps, not just to collect scores. Employer assessments vary from role to role.',
+        learn: [
+            'Timed coding, aptitude, SQL, and computer-science question formats',
+            'How to communicate assumptions and test edge cases',
+            'How to analyse mistakes and choose the next topic to revise'
         ],
-        pdfs: [],
+        practice: [
+            'Take one timed mock each week under realistic conditions',
+            'After each mock, group errors by concept and redo the missed questions',
+            'Practise explaining solutions aloud before looking at editorials'
+        ],
+        resources: [
+            { label: 'Start ExamMeta mock test', url: '/test' },
+            { label: 'HackerRank coding interview practice', url: 'https://www.hackerrank.com/interview/interview-preparation-kit' },
+            { label: 'SHL practice assessments', url: 'https://www.shl.com/shldirect/en/practice-tests/' }
+        ],
     }
 ];
 
-// --- NEW FEATURES DATA ---
 const TIPS_DATA = [
-    "Consistency > Intensity. Code for 1 hour daily rather than 10 hours on Sunday.",
-    "Don't ignore Aptitude. It filters out 60% of candidates in the first round.",
-    "Mock Interviews are awkward but necessary. Fail here, not in the actual interview.",
-    "Your projects speak louder than your GPA (mostly). Deploy them, don't just keep them Localhost.",
-    "Cold emailing alumni from your target company works better than easy apply."
+    "Practise consistently and review mistakes; solving more questions without reflection is not a plan.",
+    "Read each employer's current role description and assessment instructions before preparing for its process.",
+    "Use mock interviews to practise explaining your reasoning, not only to check whether you got the answer.",
+    "Deploy one project and make the README clear enough for someone else to run it.",
+    "Keep an application tracker and verify openings on the employer's official careers page."
 ];
 
 const TIMELINE_DATA = [
     {
-        sem: '6th Semester',
-        title: 'Foundation & Projects',
-        desc: 'Master one stack (MERN/Java). Build 2 major projects. Start Grind 75 LeetCode.',
+        sem: 'Weeks 1–2',
+        title: 'Choose a target and assess your baseline',
+        desc: 'Pick one role, review current job descriptions, choose one programming language, and identify your strongest skill gaps.',
         icon: <FaCode />
     },
     {
-        sem: '7th Semester (Aug-Nov)',
-        title: 'The Prime Time',
-        desc: 'Campus drives begin. Secure a "Safe Option" (3-6 LPA). Focus on Aptitude & Core CS.',
+        sem: 'Weeks 3–6',
+        title: 'Build foundations with deliberate practice',
+        desc: 'Study DSA patterns, SQL, aptitude, and the core-CS topics relevant to your roles. Keep an error log and revise weekly.',
         icon: <FaBriefcase />
     },
     {
-        sem: '8th Semester (Dec-May)',
-        title: 'Dream & Off-Campus',
-        desc: 'Apply for high-paying startups (Wellfound). Look for 6-month internships. Negotiate offers.',
+        sem: 'Weeks 7–9',
+        title: 'Build proof of your skills',
+        desc: 'Finish and deploy one role-relevant project with tests, a useful README, and a short demo you can explain.',
+        icon: <FaRocket />
+    },
+    {
+        sem: 'Weeks 10–12',
+        title: 'Rehearse, apply, and improve',
+        desc: 'Run timed mocks, refine your resume for each role, verify applications on employer sites, and use feedback to target weak areas.',
         icon: <FaRocket />
     }
 ];
 
-const COMPANIES_DATA = [
-    {
-        name: 'TCS (Ninja / Digital / Prime)',
-        role: 'System Engineer',
-        pattern: 'Aptitude (Numerical, Verbal, Reasoning) + Advanced Coding + Communication.',
-        tips: 'Focus on NQT basics for Ninja. For Digital/Prime, master Advanced Coding (DP, Graphs) and effective Communication.'
-    },
-    {
-        name: 'Infosys (SP / DSE)',
-        role: 'Specialist Programmer',
-        pattern: 'Online Test (Reasoning, Math, Verbal, Pseudo Code, Puzzle) + Interview.',
-        tips: 'Pseudo code section is tricky, practice it specifically. Puzzles are often decisive in the interview.'
-    },
-    {
-        name: 'Accenture',
-        role: 'ASE / FSE',
-        pattern: 'Cognitive & Technical Assessment + Coding + Communication Test + Interview.',
-        tips: 'Cognitive & Tech assessment is elimination round. Communication test is AI-based (pronunciation/fluency).'
-    }
-];
-
 const CHECKLIST_ITEMS = [
-    "Solved 50+ Easy/Medium LeetCode problems",
-    "Completed 1 solid Full-Stack Project",
-    "Created ATS-friendly Resume",
-    "Sent 10 Cold Emails to Recruiters/Alumni",
-    "Applied to 20+ companies on LinkedIn/Naukri",
-    "Revised Core CS (OS, DBMS, CN)",
-    "Registered on Unstop & Naukri",
-    "Taken 2 Mock Interviews"
+    "Selected a target role and wrote a realistic study plan",
+    "Solved and reviewed a set of DSA problems in one language",
+    "Practised SQL and revised relevant OS, DBMS, and networking basics",
+    "Built and deployed one role-relevant project with a clear README",
+    "Prepared a concise resume tailored to a real job description",
+    "Completed timed aptitude and coding practice with error review",
+    "Practised explaining a project and completed a mock interview",
+    "Verified role eligibility and application details on employer career pages"
 ];
 
 // --- RESUME BUILDER COMPONENT REMOVED (Moved to /resume-builder) ---
@@ -186,7 +224,6 @@ const PlacementGuide = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [expandedCompany, setExpandedCompany] = useState(null);
     const [checklist, setChecklist] = useState(() => {
         const saved = localStorage.getItem('modernPlacementChecklist');
         return saved ? JSON.parse(saved) : {};
@@ -201,23 +238,25 @@ const PlacementGuide = () => {
     };
 
     const calculateXP = () => {
-        const checkedCount = Object.values(checklist).filter(Boolean).length;
-        return checkedCount * 100;
+        return CHECKLIST_ITEMS.filter(item => checklist[item]).length * 100;
     };
 
     const getPlayerLevel = (xp) => {
-        if (xp < 300) return "Novice Intern";
-        if (xp < 600) return "Code Ninja";
-        return "Placement God";
-    };
-
-    const toggleCompany = (index) => {
-        setExpandedCompany(expandedCompany === index ? null : index);
+        if (xp < 300) return "Getting Started";
+        if (xp < 600) return "Building Momentum";
+        return "Interview Ready";
     };
 
     const filteredSections = SECTIONS_DATA.filter(section => {
-        const matchesSearch = section.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              section.info.toLowerCase().includes(searchTerm.toLowerCase());
+        const query = searchTerm.toLowerCase();
+        const searchableContent = [
+            section.title,
+            section.info,
+            ...section.learn,
+            ...section.practice,
+            ...section.resources.map(resource => resource.label)
+        ];
+        const matchesSearch = searchableContent.some(content => content.toLowerCase().includes(query));
         const matchesCategory = activeCategory === 'All' || section.category === activeCategory;
         return matchesSearch && matchesCategory;
     });
@@ -241,8 +280,9 @@ const PlacementGuide = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    <h1>Placement <span style={{color: '#a855f7'}}>Mastery</span> 2025</h1>
-                    <p>Your ultimate strategic roadmap to cracking your dream job.</p>
+                    <h1>Placement <span style={{color: '#a855f7'}}>Readiness</span> 2027</h1>
+                    <p>A practical roadmap for 2027 hiring: what to learn, how to practise, and trusted resources to use.</p>
+                    <p className="pg-update-note">Hiring rounds and eligibility vary by employer; verify details on the official careers page.</p>
                 </motion.div>
 
                 {/* Daily Tip Widget */}
@@ -350,7 +390,7 @@ const PlacementGuide = () => {
                 </div>
             </header>
 
-            {/* Resources Grid */}
+            {/* Learning roadmap */}
             <section className="pg-grid">
                 <AnimatePresence>
                     {filteredSections.map((section) => (
@@ -368,9 +408,24 @@ const PlacementGuide = () => {
                                 <h2>{section.title}</h2>
                             </div>
                             <p className="pg-card-info">{section.info}</p>
-                            
+
+                            <div className="pg-guidance-grid">
+                                <div className="pg-guidance-block">
+                                    <h3><FaBookOpen /> What to learn</h3>
+                                    <ul>
+                                        {section.learn.map((topic) => <li key={topic}>{topic}</li>)}
+                                    </ul>
+                                </div>
+                                <div className="pg-guidance-block">
+                                    <h3><FaCheckCircle /> How to practise</h3>
+                                    <ul>
+                                        {section.practice.map((step) => <li key={step}>{step}</li>)}
+                                    </ul>
+                                </div>
+                            </div>
+
                             <div className="pg-links-section">
-                                <h3><FaExternalLinkAlt /> Top Resources</h3>
+                                <h3><FaExternalLinkAlt /> Sources & learning material</h3>
                                 <ul className="pg-link-list">
                                     {section.resources.map((res, i) => (
                                         <li key={i} className="pg-link-item">
@@ -387,20 +442,13 @@ const PlacementGuide = () => {
                                     ))}
                                 </ul>
                             </div>
-
-                            {section.pdfs.length > 0 && (
-                                <div className="pg-downloads">
-                                    {section.pdfs.map((pdf, i) => (
-                                        <a key={i} href={pdf.link} target="_blank" rel="noopener noreferrer" className="pg-btn-download">
-                                            <FaDownload /> {pdf.name}
-                                        </a>
-                                    ))}
-                                </div>
-                            )}
                         </motion.div>
                     ))}
                 </AnimatePresence>
             </section>
+            {filteredSections.length === 0 && (
+                <p className="pg-no-results">No matching topics found. Try a broader search.</p>
+            )}
 
             {/* Resume Features Removed */}
 

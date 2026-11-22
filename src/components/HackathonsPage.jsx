@@ -9,7 +9,7 @@ export default function HackathonsPage() {
     if (meta) {
       meta.setAttribute(
         "content",
-        "Find upcoming hackathons in India from Devpost and Unstop. Filter by location, category, and date. Live listings with official registration links — ExamMeta."
+      "Browse live hackathon listings across India and Karnataka. Filter by location, category, and date, with registration links to event organizers."
       );
     }
     return () => {

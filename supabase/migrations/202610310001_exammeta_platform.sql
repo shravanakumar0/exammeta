@@ -348,9 +348,11 @@ create table if not exists public.hackathon_submissions (
   event_date date not null,
   location text not null,
   mode text not null check (mode in ('Online', 'Offline', 'Hybrid')),
+  tech_tags text[] not null default '{}',
   registration_url text not null check (registration_url ~* '^https://'),
   contact_email text not null check (contact_email ~* '^[^@\s]+@[^@\s]+\.[^@\s]+$'),
   poster_url text check (poster_url is null or poster_url ~* '^https://'),
+  prizes text,
   status text not null default 'pending' check (status in ('pending', 'approved', 'rejected', 'expired')),
   admin_note text,
   reviewed_by uuid references auth.users(id) on delete set null,
@@ -595,6 +597,13 @@ alter table public.sync_history enable row level security;
 drop policy if exists "profiles own read" on public.profiles;
 create policy "profiles own read" on public.profiles
   for select using (id = auth.uid() or public.is_admin());
+drop policy if exists "profiles own insert" on public.profiles;
+create policy "profiles own insert" on public.profiles
+  for insert with check (
+    id = auth.uid()
+    and role = 'student'
+    and is_active
+  );
 drop policy if exists "profiles own update" on public.profiles;
 create policy "profiles own update" on public.profiles
   for update using (id = auth.uid())

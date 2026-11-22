@@ -1,129 +1,186 @@
 /**
  * src/api/freeOpportunities.js
- * Free public APIs for hackathons and internships (India & Karnataka focus)
- * No API keys required for these endpoints.
+ * Public opportunity APIs for hackathons and internships.
  */
+
+import { getApprovedHackathons } from "../supabaseClient";
 
 // ═════════════════════════════════════════════════════════════════════════════
-// HACKATHONS — Free public APIs
+// HACKATHONS — free Devpost + Unstop feeds, served through the same-origin API
 // ═════════════════════════════════════════════════════════════════════════════
 
-/**
- * Devpost — Global hackathon platform (free public API)
- * Filters results for India / Karnataka on the client side.
- */
-export const fetchDevpostHackathons = async (region = "India") => {
-  const results = [];
+const cleanString = (value) => (typeof value === "string" ? value.trim() : "");
+
+const safeHttpsUrl = (value) => {
   try {
-    const res = await fetch(
-      "https://devpost.com/api/hackathons?upcoming=true&page=1&per_page=25",
-      { mode: "cors", headers: { Accept: "application/json" } }
-    );
-    if (!res.ok) return results;
-    const data = await res.json();
-    const hackathons = data.hackathons || [];
-
-    for (const h of hackathons) {
-      const location = (h.location || "").toLowerCase();
-      const isIndia =
-        /india|bengaluru|bangalore|mumbai|delhi|pune|hyderabad|chennai|karnataka|noida|gurugram|kolkata|ahmedabad/.test(
-          location
-        );
-      if (!isIndia) continue;
-
-      if (region === "Karnataka" && !/karnataka|bengaluru|bangalore|mysore|mangalore|hubli|belagavi/.test(location)) {
-        continue;
-      }
-
-      results.push({
-        id: `devpost-${h.id}`,
-        title: h.title || "Untitled Hackathon",
-        description: h.description || "",
-        organizer: h.organization || "Devpost",
-        location: h.location || "India",
-        mode: h.online ? "Online" : "In-person",
-        registrationDeadline: h.application_deadline || null,
-        startDate: h.starts_at || null,
-        endDate: h.ends_at || null,
-        prize: h.prize || null,
-        registrationUrl: h.url || null,
-        tags: (h.tag_list || []).slice(0, 6),
-        provider: "Devpost",
-        isCommunity: false,
-        thumbnailUrl: h.thumbnail_url || null,
-      });
-    }
-  } catch (err) {
-    console.warn("Devpost API fetch failed:", err.message);
+    const url = new URL(value);
+    return url.protocol === "https:" ? url.href : "";
+  } catch {
+    return "";
   }
-  return results;
 };
 
-/**
- * Unstop — Indian hackathon & competition platform (free public API)
- * Heavily focused on India, great for Karnataka listings.
- */
-export const fetchUnstopHackathons = async (region = "India") => {
-  const results = [];
-  try {
-    const res = await fetch(
-      "https://unstop.com/api/public/hackathons?page=1&limit=25",
-      { mode: "cors", headers: { Accept: "application/json" } }
-    );
-    if (!res.ok) return results;
-    const data = await res.json();
-    const hackathons = data.data || data.hackathons || [];
+const indiaToday = () => new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Kolkata",
+}).format(new Date());
 
-    for (const h of hackathons) {
-      const location = (h.location || h.city || "").toLowerCase();
-      const isIndia = /india|karnataka|bengaluru|bangalore|mysore|mumbai|delhi|pune/.test(location);
-      if (!isIndia) continue;
-
-      if (region === "Karnataka" && !/karnataka|bengaluru|bangalore|mysore|mangalore|hubli/.test(location)) {
-        continue;
-      }
-
-      results.push({
-        id: `unstop-${h.id}`,
-        title: h.title || h.name || "Untitled Hackathon",
-        description: h.description || "",
-        organizer: h.organizer || h.company || "Unstop",
-        location: h.location || h.city || "India",
-        mode: h.mode || "Online",
-        registrationDeadline: h.registration_end_date || h.last_date || null,
-        startDate: h.start_date || null,
-        endDate: h.end_date || null,
-        prize: h.prize || null,
-        registrationUrl: h.url || h.apply_url || null,
-        tags: (h.tags || []).slice(0, 6),
-        provider: "Unstop",
-        isCommunity: false,
-        thumbnailUrl: h.image_url || h.thumbnail || null,
-      });
-    }
-  } catch (err) {
-    console.warn("Unstop API fetch failed:", err.message);
+const normalizeSubmittedHackathon = (submission) => {
+  if (!submission || typeof submission !== "object" || !cleanString(submission.name)) {
+    return null;
   }
-  return results;
+
+  return {
+    id: `community-${submission.id}`,
+    title: cleanString(submission.name),
+    organizer: cleanString(submission.organizer),
+    description: cleanString(submission.description),
+    location: cleanString(submission.location),
+    mode: cleanString(submission.mode),
+    registrationDeadline: cleanString(submission.registration_deadline),
+    startDate: cleanString(submission.event_date),
+    endDate: cleanString(submission.event_date),
+    prize: cleanString(submission.prizes),
+    registrationUrl: safeHttpsUrl(submission.registration_url),
+    thumbnailUrl: safeHttpsUrl(submission.poster_url),
+    tags: Array.isArray(submission.tech_tags) ? submission.tech_tags.filter(Boolean) : [],
+    provider: "ExamMeta community",
+    registrationCount: 0,
+    isCommunity: true,
+  };
 };
 
-/**
- * Aggregates hackathons from all free sources, deduplicated by title.
- */
+export const normalizeBrabbleListing = (listing) => {
+  if (!listing || typeof listing !== "object") return null;
+
+  const title = cleanString(listing.title);
+  if (!title) return null;
+
+  const rawMode = cleanString(listing.mode).toUpperCase();
+  const mode = rawMode === "ONLINE"
+    ? "Online"
+    : rawMode === "OFFLINE"
+      ? "In-person"
+      : rawMode === "HYBRID"
+        ? "Hybrid"
+        : "";
+  const rawCity = cleanString(listing.city);
+  const location = rawCity && rawCity.toLowerCase() !== "see listing"
+    ? rawCity
+    : mode === "Online"
+      ? "Online · India"
+      : "India-wide";
+  const eligibility = Array.isArray(listing.eligibility)
+    ? listing.eligibility.map(cleanString).filter(Boolean)
+    : [];
+  const prizeAmount = Number(listing.prize?.inr);
+  const prizeLabel = cleanString(listing.prize?.label);
+  const prize = Number.isFinite(prizeAmount) && prizeAmount > 0
+    ? new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+      }).format(prizeAmount)
+    : prizeLabel.toLowerCase() === "see listing"
+      ? ""
+      : prizeLabel;
+  const kind = cleanString(listing.kind).toLowerCase();
+  const tags = [...new Set([
+    cleanString(listing.type),
+    kind,
+    cleanString(listing.platform),
+  ].filter(Boolean))];
+  const deadline = cleanString(listing.deadline);
+  const registrationCount = Number(listing.registered);
+
+  return {
+    id: cleanString(listing.id) || `${title}-${deadline}`,
+    title,
+    organizer: cleanString(listing.organiser) || "Organizer not listed",
+    description: eligibility.join(" · "),
+    location,
+    mode,
+    registrationDeadline: deadline,
+    startDate: kind === "contest" ? deadline : "",
+    endDate: "",
+    prize,
+    registrationUrl: safeHttpsUrl(listing.url),
+    shareUrl: safeHttpsUrl(listing.shareUrl),
+    tags,
+    provider: cleanString(listing.platform) || "Brabble.ai",
+    registrationCount: Number.isFinite(registrationCount) && registrationCount > 0
+      ? registrationCount
+      : 0,
+    eligibility,
+    kind,
+    team: cleanString(listing.team),
+    fee: cleanString(listing.fee),
+  };
+};
+
+const normalizeFreeHackathon = (listing) => {
+  if (!listing || !cleanString(listing.title)) return null;
+  return {
+    id: cleanString(listing.id) || cleanString(listing.eventUrl) || `${listing.title}-${listing.startDate}`,
+    title: cleanString(listing.title),
+    organizer: cleanString(listing.organizer) || "Organizer not listed",
+    description: cleanString(listing.description),
+    location: cleanString(listing.location) || "India-wide",
+    mode: cleanString(listing.mode) || "In-person",
+    registrationDeadline: cleanString(listing.registrationDeadline) || cleanString(listing.startDate),
+    startDate: cleanString(listing.startDate),
+    endDate: cleanString(listing.endDate),
+    prize: cleanString(listing.prize),
+    registrationUrl: safeHttpsUrl(listing.registrationUrl || listing.eventUrl),
+    thumbnailUrl: safeHttpsUrl(listing.thumbnailUrl),
+    tags: Array.isArray(listing.tags) ? listing.tags.filter(Boolean) : [],
+    provider: cleanString(listing.provider) || "Open opportunity feed",
+    registrationCount: Number(listing.registrationCount) || 0,
+    kind: "hackathon",
+  };
+};
+
 export const fetchAllHackathons = async (region = "India") => {
-  const [devpost, unstop] = await Promise.all([
-    fetchDevpostHackathons(region),
-    fetchUnstopHackathons(region),
-  ]);
+  const response = await fetch(`/api/hackathons?region=${encodeURIComponent(region)}&t=${Date.now()}`, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
 
-  const combined = [...devpost, ...unstop];
-  const seen = new Set();
-  return combined.filter((item) => {
-    const key = item.title.toLowerCase().replace(/\s+/g, " ");
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  let approvedResult = { data: [], error: null };
+  try {
+    approvedResult = await getApprovedHackathons();
+  } catch (communityError) {
+    console.warn("Community hackathons could not be loaded:", communityError);
+  }
+
+  let payload;
+  try {
+    payload = await response.json();
+  } catch {
+    throw new Error("The hackathon listings service returned an invalid response.");
+  }
+
+  if (!response.ok) {
+    throw new Error(payload?.error || `Could not load hackathon listings (HTTP ${response.status}).`);
+  }
+  if (!payload || !Array.isArray(payload.events)) {
+    throw new Error("The hackathon listings service returned an invalid response.");
+  }
+  const today = indiaToday();
+  const communityItems = (approvedResult.data || [])
+    .map(normalizeSubmittedHackathon)
+    .filter(Boolean);
+  const items = [
+    ...payload.events.map(normalizeFreeHackathon).filter(Boolean),
+    ...communityItems,
+  ].filter((item) => !item.registrationDeadline || item.registrationDeadline >= today);
+
+  return {
+    items,
+    total: payload.events.length + communityItems.length,
+    refreshedAt: cleanString(payload.searchedAt),
+    attribution: "Listings from Unstop and Devpost, plus ExamMeta community submissions.",
+  };
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -135,24 +192,22 @@ export const fetchAllHackathons = async (region = "India") => {
  * free public sources and returns whatever is available without a key.
  */
 export const fetchInternships = async (region = "India", query = "") => {
-  const results = [];
-
-  // Try Internshala public listing endpoint (no key, may be rate-limited)
-  try {
-    await fetch(
-      `https://internshala.com/student/internships/${encodeURIComponent(query || "")}/`,
-      { mode: "cors", headers: { Accept: "text/html" } }
-    );
-    // Internshala returns HTML; we can't parse it reliably without a key.
-    // This is a placeholder showing we attempted the free source.
-    console.info("Internshala HTML endpoint reached (parsing not implemented without key)");
-  } catch (err) {
-    console.warn("Internshala fetch failed:", err.message);
+  const response = await fetch("/api/internships", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ region, query }),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !Array.isArray(payload.internships)) {
+    throw new Error(payload.error || "Could not load internship listings.");
   }
-
-  // Note: Most internship APIs (Internshala, LinkedIn, Wellfound, Freshersworld)
-  // require API keys. If you have a key, add it to .env and implement here.
-  return results;
+  return payload.internships.map((item) => ({
+    ...item,
+    id: item.id || item.applicationUrl,
+    startDate: item.postedDate || "",
+    registrationDeadline: item.applicationDeadline || "",
+    mode: /remote|online/i.test(item.location || "") ? "Online" : "In-person",
+  }));
 };
 
 // ═════════════════════════════════════════════════════════════════════════════

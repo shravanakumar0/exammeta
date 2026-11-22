@@ -18,6 +18,7 @@ import CommentSection from "./CommentSection";
 import AdSenseAd from "./AdSenseAd";
 import InterstitialAdModal from "./InterstitialAdModal";
 import { moduleDetails } from "../data/moduleDetails";
+import { getPublishedResources } from "../supabaseClient";
 
 const ModuleDetail = () => {
   const { branch, semester, subjectName } = useParams();
@@ -30,6 +31,7 @@ const ModuleDetail = () => {
   const [loading, setLoading] = useState(navType !== 'POP');
   const [showDownloadProgress, setShowDownloadProgress] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const [managedResources, setManagedResources] = useState([]);
 
   const [activeDownload, setActiveDownload] = useState(null);
   
@@ -44,36 +46,66 @@ const ModuleDetail = () => {
       ?.find((subject) => subject.title === subjectName);
   }, [branch, semester, subjectName]);
 
-  const stats = useMemo(() => {
-    if (!subjectData?.modules) return { total: 0, notes: 0, pyq: 0, solutions: 0, important: 0 };
-    return {
-      total: subjectData.modules.length,
-      notes: subjectData.modules.filter(m => m.type === 'notes').length,
-      pyq: subjectData.modules.filter(m => m.category === 'pyq').length,
-      solutions: subjectData.modules.filter(m => m.type === 'solutions').length,
-      important: subjectData.modules.filter(m => m.category === 'important-questions').length,
+  // Admin-published resources supplement the bundled catalogue. A failed
+  // request deliberately leaves the existing offline catalogue untouched.
+  useEffect(() => {
+    let active = true;
+    const loadManagedResources = async () => {
+      const { data, error } = await getPublishedResources(branch, semester, subjectName);
+      if (!active || error) return;
+      setManagedResources((data || []).map((item) => ({
+        id: `managed-${item.id}`,
+        title: item.title,
+        description: item.description || '',
+        fileUrl: item.file_url,
+        previewUrl: item.preview_url || item.file_url,
+        type: item.resource_type,
+        category: item.category,
+        essential: item.is_essential,
+        tags: item.tags || [],
+        uploadedDate: item.updated_at,
+      })));
     };
-  }, [subjectData]);
+    setManagedResources([]);
+    loadManagedResources();
+    return () => { active = false; };
+  }, [branch, semester, subjectName]);
+
+  const subjectWithManagedResources = useMemo(() => {
+    if (!subjectData) return subjectData;
+    return { ...subjectData, modules: [...(subjectData.modules || []), ...managedResources] };
+  }, [subjectData, managedResources]);
+
+  const stats = useMemo(() => {
+    if (!subjectWithManagedResources?.modules) return { total: 0, notes: 0, pyq: 0, solutions: 0, important: 0 };
+    return {
+      total: subjectWithManagedResources.modules.length,
+      notes: subjectWithManagedResources.modules.filter(m => m.type === 'notes').length,
+      pyq: subjectWithManagedResources.modules.filter(m => m.category === 'pyq').length,
+      solutions: subjectWithManagedResources.modules.filter(m => m.type === 'solutions').length,
+      important: subjectWithManagedResources.modules.filter(m => m.category === 'important-questions').length,
+    };
+  }, [subjectWithManagedResources]);
 
   const categorizedModules = useMemo(() => {
-    if (!subjectData?.modules) return {};
+    if (!subjectWithManagedResources?.modules) return {};
     const categories = { "notes": [], "pyq": [], "important-questions": [] }; // Init common ones
-    subjectData.modules.forEach(m => {
+    subjectWithManagedResources.modules.forEach(m => {
        if(!categories[m.category]) categories[m.category] = [];
        categories[m.category].push(m);
     });
     return categories;
-  }, [subjectData]);
+  }, [subjectWithManagedResources]);
 
   const filteredModules = useMemo(() => {
-    if (!subjectData?.modules) return [];
-    let modules = [...subjectData.modules];
+    if (!subjectWithManagedResources?.modules) return [];
+    let modules = [...subjectWithManagedResources.modules];
     if (activeCategory !== "all") {
       modules = modules.filter(m => m.category === activeCategory);
     }
     // Default Sort: Essential first
     return modules.sort((a, b) => (b.essential ? 1 : 0) - (a.essential ? 1 : 0));
-  }, [subjectData, activeCategory]);
+  }, [subjectWithManagedResources, activeCategory]);
 
   useEffect(() => {
     if (loading) {

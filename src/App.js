@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  Outlet,
   useLocation,
 } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
@@ -11,7 +12,7 @@ import ScrollToTop from './components/ScrollToTop';
 // Firebase database remains in use for existing site features.
 import { database } from './firebase';
 import { ref, get, update } from 'firebase/database';
-import { supabase, getCurrentUser, onAuthStateChange } from './supabaseClient';
+import { getCurrentUser, onAuthStateChange } from './supabaseClient';
 import './App.css';
 
 // ========================================
@@ -42,6 +43,7 @@ const ModelPapers = lazy(() => import('./components/ModelPapers'));
 const Notes = lazy(() => import('./components/Notes'));
 const HackathonsPage = lazy(() => import('./components/HackathonsPage'));
 const InternshipsPage = lazy(() => import('./components/InternshipsPage'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const About = lazy(() => import('./components/About'));
 const Contact = lazy(() => import('./components/Contact'));
 const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
@@ -68,6 +70,7 @@ function LoadingScreen() {
 // ✅ Auth Guard - Only for protected features (hackathon registration, profile, etc.)
 // ---------------------------
 function AuthGuard({ children }) {
+  const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -97,13 +100,16 @@ function AuthGuard({ children }) {
     return <LoadingScreen />;
   }
 
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  return isAuthenticated
+    ? (children || <Outlet />)
+    : <Navigate to="/login" state={{ from: location }} replace />;
 }
 
 // ---------------------------
 // ✅ Guest Guard - Login/Signup page only
 // ---------------------------
 function GuestGuard({ children }) {
+  const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -133,7 +139,12 @@ function GuestGuard({ children }) {
     return <LoadingScreen />;
   }
 
-  return isAuthenticated ? <Navigate to="/" replace /> : children;
+  const from = location.state?.from;
+  const returnTo = from?.pathname
+    ? `${from.pathname}${from.search || ''}${from.hash || ''}`
+    : '/';
+
+  return isAuthenticated ? <Navigate to={returnTo} replace /> : children;
 }
 
 // ---------------------------
@@ -223,6 +234,8 @@ function AppContent() {
           {/* Protected Routes - Require Login */}
           <Route element={<AuthGuard />}>
             <Route path="/hackathon-register" element={<HackathonRegistration />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/hackathons" element={<Navigate to="/admin" replace />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -8,7 +8,7 @@
  * UI: Clean card grid with search, region (India/Karnataka), category tags,
  * online-only filter, and sort options.
  */
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaExternalLinkAlt,
@@ -47,61 +47,140 @@ function SkeletonCard() {
   );
 }
 
+const KARNATAKA_LOCATIONS = /\b(?:karnataka|bengaluru|bangalore|mysuru|mysore|mangaluru|mangalore|manipal|hubballi|hubli|belagavi|belgaum|dharwad|udupi|shivamogga|shimoga|tumakuru|tumkur|ballari|bellary|vijayapura|bijapur|kalaburagi|gulbarga|hassan|chikkamagaluru|chikmagalur|raichur|bidar|gadag|kolar|chitradurga|davanagere|davangere|kodagu|coorg)\b/i;
+
 const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
   const [query, setQuery] = useState("");
-  const [region, setRegion] = useState("India");
+  const [region, setRegion] = useState(initialType === "internships" ? "Karnataka" : "India");
   const [type, setType] = useState(initialType);
   const [items, setItems] = useState([]);
   const [searched, setSearched] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchedAt, setSearchedAt] = useState("");
+  const [attribution, setAttribution] = useState("");
+  const [apiTotal, setApiTotal] = useState(0);
   const [lastQuery, setLastQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState("all");
   const [onlineOnly, setOnlineOnly] = useState(false);
   const [sortOrder, setSortOrder] = useState("soonest");
   const [selectedItem, setSelectedItem] = useState(null);
+  const modalCloseRef = useRef(null);
+  const previousFocusRef = useRef(null);
   const navigate = useNavigate();
+  const isInternships = type === "internships";
 
   const resetState = () => {
     setItems([]);
     setSearched(false);
     setError("");
+    setLoading(false);
+    setSearchedAt("");
+    setAttribution("");
+    setApiTotal(0);
     setSelectedTag("all");
     setSortOrder("soonest");
     setOnlineOnly(false);
   };
 
+  useEffect(() => {
+    if (type !== "hackathons") return undefined;
+
+    let active = true;
+    setLoading(true);
+    setError("");
+
+    fetchAllHackathons()
+      .then((result) => {
+        if (!active) return;
+        setItems(result.items);
+        setApiTotal(result.total);
+        setAttribution(result.attribution);
+        setSearchedAt(result.refreshedAt);
+        setSearched(true);
+      })
+      .catch((loadError) => {
+        if (!active) return;
+        setItems([]);
+        setError(loadError.message || "Could not load hackathon listings.");
+        setSearched(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [type]);
+
+  useEffect(() => {
+    if (type !== "internships") return undefined;
+
+    let active = true;
+    setLoading(true);
+    setError("");
+
+    fetchInternships(region, "")
+      .then((fetched) => {
+        if (!active) return;
+        setItems(fetched);
+        setSearched(true);
+        setSearchedAt(new Date().toISOString());
+      })
+      .catch((loadError) => {
+        if (!active) return;
+        setItems([]);
+        setError(loadError.message || "Could not load internship listings.");
+        setSearched(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [type, region]);
+
+  useEffect(() => {
+    if (!selectedItem) return undefined;
+
+    previousFocusRef.current = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusFrame = window.requestAnimationFrame(() => modalCloseRef.current?.focus());
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setSelectedItem(null);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousFocusRef.current?.focus();
+    };
+  }, [selectedItem]);
+
   const search = async (event) => {
     event?.preventDefault();
+    if (type !== "internships") return;
+
     setLoading(true);
     setError("");
     setSearched(true);
     setLastQuery(query.trim());
 
     try {
-      if (type === "internships") {
-        const fetched = await fetchInternships(region, query.trim());
-        setItems(fetched);
-        if (fetched.length === 0) {
-          setError(
-            "No free public internship API available without an API key. " +
-            "Try searching on Internshala, LinkedIn, or Wellfound directly."
-          );
-        }
-      } else {
-        const fetched = await fetchAllHackathons(region);
-        const q = query.trim().toLowerCase();
-        const filtered = q
-          ? fetched.filter(
-              (item) =>
-                item.title.toLowerCase().includes(q) ||
-                item.organizer.toLowerCase().includes(q) ||
-                item.description.toLowerCase().includes(q) ||
-                item.tags?.some((t) => t.toLowerCase().includes(q))
-            )
-          : fetched;
-        setItems(filtered);
+      const fetched = await fetchInternships(region, query.trim());
+      setItems(fetched);
+      if (fetched.length === 0) {
+        setError(
+          "No free public internship API available without an API key. " +
+          "Try searching on Internshala, LinkedIn, or Wellfound directly."
+        );
       }
       setSearchedAt(new Date().toISOString());
     } catch (searchError) {
@@ -112,8 +191,6 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
     }
   };
 
-  const isInternships = type === "internships";
-
   const tags = useMemo(() => {
     const tagSet = new Set(["all"]);
     items.forEach((item) => {
@@ -122,22 +199,35 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
     return [...tagSet].sort();
   }, [items]);
 
-  const visibleItems = items
-    .filter(
-      (item) =>
-        (selectedTag === "all" || (item.tags || []).includes(selectedTag)) &&
-        (!onlineOnly ||
-          /online|remote/i.test(`${item.mode || ""} ${item.location || ""}`))
-    )
-    .sort((a, b) => {
-      const aDate = Date.parse(
-        a.startDate || a.registrationDeadline || a.applicationDeadline || ""
-      ) || Infinity;
-      const bDate = Date.parse(
-        b.startDate || b.registrationDeadline || b.applicationDeadline || ""
-      ) || Infinity;
-      return sortOrder === "latest" ? bDate - aDate : aDate - bDate;
-    });
+  const visibleItems = useMemo(() => {
+    const searchTerm = query.trim().toLowerCase();
+    return items
+      .filter((item) => {
+        const matchesRegion = region !== "Karnataka" ||
+          item.mode === "Online" ||
+          KARNATAKA_LOCATIONS.test(item.location || "");
+        const matchesQuery = !searchTerm || [
+          item.title,
+          item.organizer,
+          item.description,
+          item.location,
+          ...(item.tags || []),
+        ].some((value) => String(value || "").toLowerCase().includes(searchTerm));
+        return matchesRegion &&
+          matchesQuery &&
+          (selectedTag === "all" || (item.tags || []).includes(selectedTag)) &&
+          (!onlineOnly || /online|remote/i.test(`${item.mode || ""} ${item.location || ""}`));
+      })
+      .sort((a, b) => {
+        const aDate = Date.parse(
+          a.startDate || a.registrationDeadline || a.applicationDeadline || ""
+        ) || Infinity;
+        const bDate = Date.parse(
+          b.startDate || b.registrationDeadline || b.applicationDeadline || ""
+        ) || Infinity;
+        return sortOrder === "latest" ? bDate - aDate : aDate - bDate;
+      });
+  }, [items, query, region, selectedTag, onlineOnly, sortOrder]);
 
   return (
     <section
@@ -149,7 +239,7 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
         <span className="study-feature-eyebrow">
           {isInternships
             ? "FREE PUBLIC APIs — INDIA"
-            : "LIVE FROM DEVPOST & UNSTOP — INDIA"}
+            : "OPEN HACKATHONS — INDIA"}
         </span>
         <h1 className="hf-title">
           {showTabs
@@ -161,7 +251,7 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
         <p className="hf-desc">
           {isInternships
             ? "Free public internship APIs without keys are limited. Try Internshala, LinkedIn, or Wellfound directly."
-            : "Upcoming hackathons sourced live from Devpost and Unstop, filtered for India & Karnataka."}
+            : "Browse live listings across India, or narrow the list to Karnataka. Search and filters update as you type."}
         </p>
         {!isInternships && (
           <button
@@ -205,7 +295,10 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
       )}
 
       {/* Search Form */}
-      <form className="hf-search-form" onSubmit={search}>
+      <form
+        className={`hf-search-form ${isInternships ? "" : "hf-search-form--filters"}`}
+        onSubmit={search}
+      >
         <label className="hf-field">
           <span className="hf-field-label">Location</span>
           <select
@@ -230,7 +323,7 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
               placeholder={
                 isInternships
                   ? "Role, company, or domain"
-                  : "Technology, theme, or domain"
+                  : "Filter hackathons by title, organizer, or technology"
               }
               aria-label="Search terms"
               className="hf-input"
@@ -238,22 +331,24 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
           </div>
         </label>
 
-        <button
-          className="hf-search-btn"
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <FaSpinner className="spin" aria-hidden="true" /> Searching…
-            </>
-          ) : (
-            <>
-              <FaSearch aria-hidden="true" />
-              Find {isInternships ? "Internships" : "Hackathons"}
-            </>
-          )}
-        </button>
+        {isInternships && (
+          <button
+            className="hf-search-btn"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <FaSpinner className="spin" aria-hidden="true" /> Searching…
+              </>
+            ) : (
+              <>
+                <FaSearch aria-hidden="true" />
+                Find Internships
+              </>
+            )}
+          </button>
+        )}
       </form>
 
       {/* Extra Filters (hackathons only) */}
@@ -298,17 +393,26 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
       )}
 
       {/* Results */}
-      <div aria-live="polite">
+      <div aria-live="polite" aria-busy={loading}>
         {/* Error */}
         {error && (
           <div className="hf-state hf-state--error" role="alert">
             <strong>Search error:</strong> {error}
+            {error.includes("BRABBLE_API_KEY") && (
+              <>
+                {" "}Create a key in the{" "}
+                <a href="https://brabble.ai/dashboard" target="_blank" rel="noopener noreferrer">
+                  Brabble dashboard
+                </a>
+                , then add it to the server environment and restart local development.
+              </>
+            )}
           </div>
         )}
 
         {/* Loading skeletons */}
         {loading && (
-          <div className="hf-grid">
+          <div className="hf-grid" role="status" aria-label={`Loading ${isInternships ? "internships" : "hackathons"}`}>
             {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         )}
@@ -321,7 +425,9 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
           <div className="hf-state">
             No{" "}
             {isInternships ? "open internships" : "upcoming hackathons"} found
-            {lastQuery ? ` for "${lastQuery}"` : ""} in {region}.
+            {(isInternships ? lastQuery : query.trim())
+              ? ` for "${isInternships ? lastQuery : query.trim()}"`
+              : ""} in {region}.
             {isInternships ? (
               <>
                 <br />
@@ -344,7 +450,12 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
               {isInternships ? "internship" : "hackathon"}{visibleItems.length !== 1
                 ? "s"
                 : ""}
-              {lastQuery ? ` matching "${lastQuery}"` : ""}
+              {!isInternships && items.length > 0
+                ? ` of ${items.length} loaded${apiTotal > items.length ? ` (${apiTotal} total)` : ""}`
+                : ""}
+              {(isInternships ? lastQuery : query.trim())
+                ? ` matching "${isInternships ? lastQuery : query.trim()}"`
+                : ""}
             </p>
             <div className="hf-grid">
               {visibleItems.map((item, index) => (
@@ -429,9 +540,11 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
                       <p className="hf-card-detail">
                         <FaCalendarAlt aria-hidden="true" className="hf-icon" />
                         {item.registrationDeadline
-                          ? `Register by ${formatDate(item.registrationDeadline)}`
+                          ? `${item.kind === "contest" ? "Starts" : "Register by"} ${formatDate(item.registrationDeadline)}`
                           : ""}
-                        {item.startDate ? ` · Event ${formatDate(item.startDate)}` : ""}
+                        {item.kind !== "contest" && item.startDate
+                          ? ` · Event ${formatDate(item.startDate)}`
+                          : ""}
                         {item.endDate && item.endDate !== item.startDate ? ` – ${formatDate(item.endDate)}` : ""}
                       </p>
                     )}
@@ -446,7 +559,7 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
                           </span>
                         )}
                         {item.registrationCount > 0 && (
-                          <span className="hf-stat">
+                          <span className="hf-stat" title="Counts can vary by platform and are not directly comparable.">
                             <FaUsers aria-hidden="true" className="hf-icon" />
                             {item.registrationCount.toLocaleString()} registered
                           </span>
@@ -516,7 +629,7 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
                     <small className="hf-card-source">
                       {isInternships
                         ? "Source: Internship portals · Confirm eligibility and deadlines directly with the employer."
-                        : `Listed via ${item.provider || "Devpost / Unstop"} · Verify details on the official event page.`}
+                        : `Listed via ${item.provider || "Brabble.ai"} · Verify details on the organizer's event page.`}
                     </small>
                   </div>
                 </article>
@@ -528,10 +641,20 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
 
       {/* Footer note */}
       <p className="hf-footer-note">
-        {searchedAt ? `Last searched ${new Date(searchedAt).toLocaleString()}. ` : ""}
+        {searchedAt
+          ? `${isInternships ? "Last searched" : "Listings refreshed"} ${new Date(searchedAt).toLocaleString("en-IN")}. `
+          : ""}
         {isInternships
           ? "Free public internship APIs without keys are limited. Try Internshala, LinkedIn, or Wellfound directly."
-          : "Listings are fetched live from Devpost and Unstop and are not a guaranteed-complete calendar. Confirm details with the official source."}
+          : (
+            <>
+              {attribution || "Hackathon listings provided by"}{" "}
+              <a href="https://brabble.ai/developers" target="_blank" rel="noopener noreferrer">
+                Brabble.ai
+              </a>
+              . Deadlines and prize or registration figures may vary; confirm details with the organizer.
+            </>
+          )}
       </p>
 
       {selectedItem && (
@@ -552,6 +675,7 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
               type="button"
               onClick={() => setSelectedItem(null)}
               aria-label="Close"
+              ref={modalCloseRef}
             >
               ×
             </button>
@@ -582,21 +706,31 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
                 <dd>{selectedItem.location || "Not specified"}</dd>
               </div>
               <div>
-                <dt>Registration deadline</dt>
+                <dt>{selectedItem.kind === "contest" ? "Contest starts" : "Registration deadline"}</dt>
                 <dd>
-                  {selectedItem.registrationDeadline ||
-                    formatDate(selectedItem.registrationDeadline) ||
-                    "Check event page"}
+                  {selectedItem.registrationDeadline
+                    ? formatDate(selectedItem.registrationDeadline)
+                    : "Check event page"}
                 </dd>
               </div>
-              <div>
-                <dt>Event date</dt>
-                <dd>
-                  {selectedItem.startDate ||
-                    formatDate(selectedItem.startDate) ||
-                    "Check event page"}
-                </dd>
-              </div>
+              {selectedItem.fee && (
+                <div>
+                  <dt>Entry fee</dt>
+                  <dd>{selectedItem.fee}</dd>
+                </div>
+              )}
+              {selectedItem.team && (
+                <div>
+                  <dt>Team size</dt>
+                  <dd>{selectedItem.team}</dd>
+                </div>
+              )}
+              {selectedItem.eligibility?.length > 0 && (
+                <div className="hf-details-full">
+                  <dt>Eligibility</dt>
+                  <dd>{selectedItem.eligibility.join(" · ")}</dd>
+                </div>
+              )}
               {selectedItem.contactEmail && (
                 <div>
                   <dt>Contact</dt>
@@ -616,6 +750,16 @@ const HackathonFinder = ({ initialType = "hackathons", showTabs = true }) => {
                 className="hf-btn hf-btn--primary"
               >
                 Register Now <FaExternalLinkAlt aria-hidden="true" />
+              </a>
+            )}
+            {selectedItem.shareUrl && (
+              <a
+                href={selectedItem.shareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hf-btn hf-btn--ghost"
+              >
+                View on Brabble.ai <FaExternalLinkAlt aria-hidden="true" />
               </a>
             )}
           </section>

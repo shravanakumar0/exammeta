@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  FaCalendar, FaMapMarkerAlt, FaUsers, FaTrophy, FaLink, 
+  FaCalendar, FaMapMarkerAlt, FaTrophy, FaLink,
   FaFileImage, FaGraduationCap, FaArrowRight, FaLock
 } from 'react-icons/fa';
 import { registerForHackathon } from '../supabaseClient';
@@ -14,15 +14,16 @@ const HackathonRegistration = () => {
   const [formData, setFormData] = useState({
     hackathonName: '',
     organizerName: '',
-    email: '',
-    phone: '',
-    collegeName: '',
-    teamName: '',
-    teamMembers: '1',
+    contactEmail: '',
+    registrationStartDate: '',
+    registrationDeadline: '',
+    eventDate: '',
+    location: '',
+    mode: 'Online',
     domain: '',
     description: '',
     registrationLink: '',
-    eventDate: '',
+    posterUrl: '',
     prizes: '',
     terms: false,
   });
@@ -47,10 +48,10 @@ const HackathonRegistration = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((current) => ({
+      ...current,
       [name]: type === 'checkbox' ? checked : value,
-    });
+    }));
     setError('');
   };
 
@@ -65,28 +66,59 @@ const HackathonRegistration = () => {
       return;
     }
 
+    if (
+      formData.hackathonName.trim().length < 3 ||
+      formData.organizerName.trim().length < 2 ||
+      !formData.contactEmail.trim() ||
+      !formData.location.trim() ||
+      !formData.domain ||
+      formData.description.trim().length < 20 ||
+      !formData.registrationLink.trim()
+    ) {
+      setError('Complete the required event details before submitting.');
+      setLoading(false);
+      return;
+    }
+
+    if (
+      formData.registrationStartDate &&
+      formData.registrationStartDate > formData.registrationDeadline
+    ) {
+      setError('The registration start date must be on or before the registration deadline.');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.eventDate < formData.registrationDeadline) {
+      setError('The event date must be on or after the registration deadline.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await registerForHackathon({
-        hackathon_name: formData.hackathonName,
-        organizer_name: formData.organizerName,
-        email: formData.email,
-        phone: formData.phone,
-        college_name: formData.collegeName,
-        team_name: formData.teamName,
-        team_members: parseInt(formData.teamMembers),
-        domain: formData.domain,
-        description: formData.description,
-        registration_link: formData.registrationLink,
+        name: formData.hackathonName.trim(),
+        organizer: formData.organizerName.trim(),
+        contact_email: formData.contactEmail.trim(),
+        registration_start_date: formData.registrationStartDate || null,
+        registration_deadline: formData.registrationDeadline,
         event_date: formData.eventDate,
-        prizes: formData.prizes,
-        terms_accepted: formData.terms,
+        location: formData.location.trim(),
+        mode: formData.mode,
+        tech_tags: [formData.domain],
+        description: formData.description.trim(),
+        registration_url: formData.registrationLink.trim(),
+        poster_url: formData.posterUrl.trim() || null,
+        prizes: formData.prizes.trim() || null,
       });
       if (error) throw error;
       setSubmitted(true);
     } catch (err) {
-      let message = err.message;
-      if (err.message === 'Failed to fetch') {
-        message = 'Cannot connect to Supabase. Check your .env file and CORS settings (add http://localhost:3000 to Supabase CORS origins).';
+      let message = err?.message || 'The hackathon could not be submitted. Please try again.';
+      if (err?.message === 'Failed to fetch') {
+        message = 'Could not reach Supabase. Check your internet connection and Supabase project settings, then try again.';
+      } else if (err?.code === 'PGRST205' || err?.code === '42P01') {
+        message = 'The hackathon submission table is missing. Apply the Supabase migrations, then try again.';
       }
       setError(message);
     } finally {
@@ -101,20 +133,24 @@ const HackathonRegistration = () => {
           <div className="success-icon">
             <FaGraduationCap size={64} className="success-icon-svg" />
           </div>
-          <h2>Registration Successful!</h2>
-          <p>You've successfully registered for the hackathon. We'll send a confirmation email to {formData.email}.</p>
+          <h2>Hackathon Submitted</h2>
+          <p>Your event details were submitted for review. Approved events can then appear in the ExamMeta hackathon finder.</p>
           <div className="success-details">
             <div className="detail-item">
               <span className="detail-label">Hackathon:</span>
               <span className="detail-value">{formData.hackathonName}</span>
             </div>
             <div className="detail-item">
-              <span className="detail-label">Team:</span>
-              <span className="detail-value">{formData.teamName}</span>
+              <span className="detail-label">Organizer:</span>
+              <span className="detail-value">{formData.organizerName}</span>
             </div>
             <div className="detail-item">
-              <span className="detail-label">Event Date:</span>
-              <span className="detail-value">{formData.eventDate || 'TBD'}</span>
+              <span className="detail-label">Registration deadline:</span>
+              <span className="detail-value">{formData.registrationDeadline}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Event date:</span>
+              <span className="detail-value">{formData.eventDate}</span>
             </div>
           </div>
           <Link to="/" className="btn-back-home">
@@ -134,7 +170,7 @@ const HackathonRegistration = () => {
             <span>Hackathon Registration</span>
           </div>
           <h1>Register Your Hackathon</h1>
-          <p>Submit your hackathon details and join the ExamMeta community of innovators.</p>
+          <p>Submit your event for review and inclusion in the ExamMeta hackathon finder.</p>
         </div>
         <div className="reg-header-decoration">
           <div className="decoration-shape dec-1"></div>
@@ -146,7 +182,7 @@ const HackathonRegistration = () => {
         <div className="reg-card">
           <form className="reg-form" onSubmit={handleSubmit}>
             {error && (
-              <div className="reg-error">
+              <div className="reg-error" role="alert" aria-live="assertive">
                 <FaLock size={16} /> {error}
               </div>
             )}
@@ -157,70 +193,112 @@ const HackathonRegistration = () => {
               </h3>
               <div className="form-grid">
                 <div className="form-group">
-                  <label className="form-label">Hackathon Name <span className="required">*</span></label>
+                  <label className="form-label" htmlFor="hackathonName">Hackathon Name <span className="required">*</span></label>
                   <input
                     type="text"
+                    id="hackathonName"
                     name="hackathonName"
-                    placeholder="e.g., TechFest 2026"
+                    placeholder="e.g., Campus Innovation Hackathon"
+                    minLength={3}
+                    maxLength={160}
                     value={formData.hackathonName}
                     onChange={handleChange}
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Organizer Name <span className="required">*</span></label>
+                  <label className="form-label" htmlFor="organizerName">Organizer Name <span className="required">*</span></label>
                   <input
                     type="text"
+                    id="organizerName"
                     name="organizerName"
                     placeholder="e.g., CSE Department"
+                    minLength={2}
+                    maxLength={160}
                     value={formData.organizerName}
                     onChange={handleChange}
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Email <span className="required">*</span></label>
+                  <label className="form-label" htmlFor="contactEmail">Contact Email <span className="required">*</span></label>
                   <input
                     type="email"
-                    name="email"
+                    id="contactEmail"
+                    name="contactEmail"
                     placeholder="e.g., hackfest@college.edu"
-                    value={formData.email}
+                    autoComplete="email"
+                    value={formData.contactEmail}
                     onChange={handleChange}
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Phone Number</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="e.g., +91 98765 43210"
-                    value={formData.phone}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">College / Institution</label>
+                  <label className="form-label" htmlFor="location"><FaMapMarkerAlt /> Location <span className="required">*</span></label>
                   <input
                     type="text"
-                    name="collegeName"
-                    placeholder="e.g., VTU College of Engineering"
-                    value={formData.collegeName}
+                    id="location"
+                    name="location"
+                    placeholder="e.g., Bengaluru, Karnataka or Online"
+                    maxLength={200}
+                    value={formData.location}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="mode">Event Mode <span className="required">*</span></label>
+                  <select
+                    id="mode"
+                    name="mode"
+                    value={formData.mode}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="registrationStartDate">Registration Opens</label>
+                  <input
+                    type="date"
+                    id="registrationStartDate"
+                    name="registrationStartDate"
+                    max={formData.registrationDeadline || undefined}
+                    value={formData.registrationStartDate}
                     onChange={handleChange}
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Event Date</label>
+                  <label className="form-label" htmlFor="registrationDeadline">Registration Deadline <span className="required">*</span></label>
                   <input
                     type="date"
+                    id="registrationDeadline"
+                    name="registrationDeadline"
+                    min={formData.registrationStartDate || undefined}
+                    value={formData.registrationDeadline}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="eventDate">Event Date <span className="required">*</span></label>
+                  <input
+                    type="date"
+                    id="eventDate"
                     name="eventDate"
+                    min={formData.registrationDeadline || undefined}
                     value={formData.eventDate}
                     onChange={handleChange}
+                    required
                   />
                 </div>
                 <div className="form-group full-width">
-                  <label className="form-label">Domain <span className="required">*</span></label>
+                  <label className="form-label" htmlFor="domain">Primary Domain <span className="required">*</span></label>
                   <select
+                    id="domain"
                     name="domain"
                     value={formData.domain}
                     onChange={handleChange}
@@ -233,68 +311,57 @@ const HackathonRegistration = () => {
                   </select>
                 </div>
                 <div className="form-group full-width">
-                  <label className="form-label">Description</label>
+                  <label className="form-label" htmlFor="description">Description <span className="required">*</span></label>
                   <textarea
+                    id="description"
                     name="description"
                     placeholder="Tell us about your hackathon..."
                     rows={3}
+                    minLength={20}
+                    maxLength={5000}
                     value={formData.description}
                     onChange={handleChange}
+                    required
                   />
                 </div>
                 <div className="form-group full-width">
-                  <label className="form-label">Registration Link</label>
+                  <label className="form-label" htmlFor="registrationLink"><FaLink /> Registration URL (HTTPS) <span className="required">*</span></label>
                   <input
                     type="url"
+                    id="registrationLink"
                     name="registrationLink"
                     placeholder="https://devpost.com/..."
+                    pattern="https://.+"
+                    title="Enter a secure URL beginning with https://"
                     value={formData.registrationLink}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="form-group full-width">
-                  <label className="form-label">Prizes</label>
-                  <input
-                    type="text"
-                    name="prizes"
-                    placeholder="e.g., ₹50,000 + Goodies"
-                    value={formData.prizes}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="form-section">
-              <h3 className="section-title">
-                <FaUsers size={18} className="section-icon" />
-                Team Details
-              </h3>
-              <div className="form-grid">
-                <div className="form-group">
-                  <label className="form-label">Team Name <span className="required">*</span></label>
-                  <input
-                    type="text"
-                    name="teamName"
-                    placeholder="e.g., Code Warriors"
-                    value={formData.teamName}
                     onChange={handleChange}
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Team Members</label>
-                  <select
-                    name="teamMembers"
-                    value={formData.teamMembers}
+                  <label className="form-label" htmlFor="posterUrl"><FaFileImage /> Poster URL (optional)</label>
+                  <input
+                    type="url"
+                    id="posterUrl"
+                    name="posterUrl"
+                    placeholder="https://example.com/poster.png"
+                    pattern="https://.+"
+                    title="Enter a secure URL beginning with https://"
+                    value={formData.posterUrl}
                     onChange={handleChange}
-                  >
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <option key={n} value={n.toString()}>
-                        {n} Member{n > 1 ? 's' : ''}
-                      </option>
-                    ))}
-                  </select>
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="prizes">Prizes (optional)</label>
+                  <input
+                    type="text"
+                    id="prizes"
+                    name="prizes"
+                    placeholder="e.g., ₹50,000 + Goodies"
+                    maxLength={1000}
+                    value={formData.prizes}
+                    onChange={handleChange}
+                  />
                 </div>
               </div>
             </div>
@@ -303,12 +370,13 @@ const HackathonRegistration = () => {
               <div className="form-group checkbox-group">
                 <input
                   type="checkbox"
+                  id="terms"
                   name="terms"
                   checked={formData.terms}
                   onChange={handleChange}
                   required
                 />
-                <label className="form-label terms-label">
+                <label className="form-label terms-label" htmlFor="terms">
                   I agree to the <a href="/terms-and-conditions" className="terms-link">Terms and Conditions</a> and confirm that all information provided is accurate.
                 </label>
               </div>
@@ -323,7 +391,7 @@ const HackathonRegistration = () => {
                 <span>Registering...</span>
               ) : (
                 <>
-                  Register for Hackathon <FaArrowRight size={18} />
+                  Submit Hackathon <FaArrowRight size={18} />
                 </>
               )}
             </button>

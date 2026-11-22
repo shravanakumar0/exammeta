@@ -3,9 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import {
   FaHome, FaBook, FaGraduationCap, FaCalculator, FaRocket,
   FaBriefcase, FaChevronDown, FaSearch, FaUser, FaSignOutAlt,
-  FaTrophy
+  FaTrophy, FaTimes
 } from "react-icons/fa";
-import { supabase, signOut, getCurrentUser, onAuthStateChange } from "../supabaseClient";
+import { signOut, getCurrentUser, onAuthStateChange } from "../supabaseClient";
 import "./NavbarModern.css";
 
 const Navbar = () => {
@@ -13,7 +13,6 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -28,8 +27,6 @@ const Navbar = () => {
         setUser(userData);
       } catch (err) {
         setUser(null);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -37,7 +34,6 @@ const Navbar = () => {
 
     const { data: { subscription } } = onAuthStateChange((event, session) => {
       setUser(session?.user || null);
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -45,9 +41,30 @@ const Navbar = () => {
 
   const closeMenu = () => setIsOpen(false);
 
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") closeMenu();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
   const handleSignOut = async () => {
     await signOut();
     setUser(null);
+    closeMenu();
   };
 
   const navLinks = [
@@ -101,7 +118,7 @@ const Navbar = () => {
               const active = location.pathname === link.path ||
                 (link.path !== "/" && location.pathname.startsWith(link.path + "/"));
               return (
-                <li key={link.name}>
+                <li key={link.name} className={hasSubmenu ? "nav-item-with-submenu" : undefined}>
                   <Link
                     to={link.path}
                     className={`nav-link ${active ? "is-active" : ""}`}
@@ -110,6 +127,15 @@ const Navbar = () => {
                     <span>{link.name}</span>
                     {hasSubmenu && <FaChevronDown size={14} />}
                   </Link>
+                  {hasSubmenu && (
+                    <ul className="nav-submenu">
+                      {link.submenu.map((item) => (
+                        <li key={item.path}>
+                          <Link to={item.path} onClick={closeMenu}>{item.name}</Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               );
             })}
@@ -153,6 +179,8 @@ const Navbar = () => {
           className="nav-mobile-toggle"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle Navigation Menu"
+          aria-expanded={isOpen}
+          aria-controls="mobile-navigation"
         >
           <div className={`nav-burger ${isOpen ? "open" : ""}`}>
             <span></span>
@@ -161,6 +189,71 @@ const Navbar = () => {
           </div>
         </button>
       </div>
+      {isOpen && (
+        <div className="nav-mobile-overlay">
+          <button
+            type="button"
+            className="mobile-overlay-backdrop"
+            aria-label="Close navigation menu"
+            onClick={closeMenu}
+          />
+          <div className="mobile-menu-panel" id="mobile-navigation" role="dialog" aria-modal="true" aria-label="Main navigation">
+            <div className="mobile-menu-header">
+              <span className="mobile-brand-title">ExamMeta</span>
+              <button className="mobile-close-btn" onClick={closeMenu} aria-label="Close menu">
+                <FaTimes />
+              </button>
+            </div>
+            <nav className="mobile-nav-list" aria-label="Mobile navigation">
+              {navLinks.map((link) => {
+                const active = location.pathname === link.path ||
+                  (link.path !== "/" && !link.path.startsWith("/#") && location.pathname.startsWith(link.path + "/"));
+                return (
+                  <React.Fragment key={link.name}>
+                    <Link
+                      to={link.path}
+                      className={`mobile-nav-item ${active ? "is-active" : ""}`}
+                      onClick={closeMenu}
+                    >
+                      {link.icon}
+                      <span>{link.name}</span>
+                    </Link>
+                    {link.submenu?.map((item) => (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        className="mobile-nav-subitem"
+                        onClick={closeMenu}
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </React.Fragment>
+                );
+              })}
+            </nav>
+            <div className="mobile-nav-actions">
+              {user ? (
+                <>
+                  <span className="mobile-user-name">
+                    <FaUser /> {user.user_metadata?.full_name || user.email}
+                  </span>
+                  <button className="mobile-btn-signin" onClick={handleSignOut}>
+                    <FaSignOutAlt /> Sign out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="mobile-btn-signin" onClick={closeMenu}>Sign in</Link>
+                  <Link to="/hackathon-register" className="mobile-btn-getstarted" onClick={closeMenu}>
+                    <FaTrophy /> Register Hackathon
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

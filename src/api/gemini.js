@@ -25,3 +25,32 @@ export const getProjectIdeas = async (projectType, userMessage) => {
     return [error.message || "Could not generate ideas. Try again later."];
   }
 };
+
+export const analyzePyqResources = async ({ subject, moduleNumber, resourceUrls }) => {
+  const response = await fetch("/api/gemini", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      mode: "analyze-pyq",
+      subject,
+      moduleNumber,
+      resourceUrls,
+    }),
+  });
+  return readApiResponse(response, "Could not analyze the uploaded question papers.");
+};
+
+export const getQuestionAnswer = async ({ subject, moduleNumber, question, resourceUrl }) => {
+  const response = await fetch("/api/gemini", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      mode: "question-answer",
+      subject,
+      moduleNumber,
+      question,
+      resourceUrl,
+    }),
+  });
+  return readApiResponse(response, "Could not generate an answer.");
+};
